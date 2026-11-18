@@ -1,0 +1,812 @@
+[
+  {
+    "group": "base",
+    "name": "base:main-plate",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:front-rail",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "frame",
+    "name": "frame:back-acrylic",
+    "rgba": [
+      0.67,
+      0.82,
+      0.9,
+      0.25
+    ]
+  },
+  {
+    "group": "frame",
+    "name": "frame:side-guard--182",
+    "rgba": [
+      0.67,
+      0.82,
+      0.9,
+      0.25
+    ]
+  },
+  {
+    "group": "frame",
+    "name": "frame:side-guard-182",
+    "rgba": [
+      0.67,
+      0.82,
+      0.9,
+      0.25
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:mount--171--96",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:mount--171-97",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:mount-171--96",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:mount-171-97",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "power",
+    "name": "power:dc-supply",
+    "rgba": [
+      0.64,
+      0.68,
+      0.73,
+      1
+    ]
+  },
+  {
+    "group": "power",
+    "name": "power:supply-vent",
+    "rgba": [
+      0.22,
+      0.27,
+      0.32,
+      1
+    ]
+  },
+  {
+    "group": "power",
+    "name": "power:dc-buck",
+    "rgba": [
+      0.13,
+      0.33,
+      0.61,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:controller-board",
+    "rgba": [
+      0.07,
+      0.16,
+      0.22,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:rf-shield",
+    "rgba": [
+      0.64,
+      0.72,
+      0.76,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:usb-connector",
+    "rgba": [
+      0.74,
+      0.76,
+      0.79,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--91-132",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--47-132",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--91-145",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--47-145",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--91-158",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--47-158",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--91-171",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--47-171",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--91-184",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--47-184",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--91-197",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "esp32",
+    "name": "esp32:gpio--47-197",
+    "rgba": [
+      0.81,
+      0.64,
+      0.28,
+      1
+    ]
+  },
+  {
+    "group": "ph",
+    "name": "ph:signal-module",
+    "rgba": [
+      0.065,
+      0.2,
+      0.29,
+      1
+    ]
+  },
+  {
+    "group": "ph",
+    "name": "ph:calibration-pot",
+    "rgba": [
+      0.14,
+      0.52,
+      0.9,
+      1
+    ]
+  },
+  {
+    "group": "led",
+    "name": "led:ph-light",
+    "rgba": [
+      0.09,
+      0.95,
+      0.6,
+      1
+    ]
+  },
+  {
+    "group": "ph",
+    "name": "ph:connector",
+    "rgba": [
+      0.9,
+      0.89,
+      0.81,
+      1
+    ]
+  },
+  {
+    "group": "turbidity",
+    "name": "turbidity:signal-module",
+    "rgba": [
+      0.065,
+      0.2,
+      0.29,
+      1
+    ]
+  },
+  {
+    "group": "turbidity",
+    "name": "turbidity:calibration-pot",
+    "rgba": [
+      0.14,
+      0.52,
+      0.9,
+      1
+    ]
+  },
+  {
+    "group": "led",
+    "name": "led:turbidity-light",
+    "rgba": [
+      0.09,
+      0.95,
+      0.6,
+      1
+    ]
+  },
+  {
+    "group": "turbidity",
+    "name": "turbidity:connector",
+    "rgba": [
+      0.9,
+      0.89,
+      0.81,
+      1
+    ]
+  },
+  {
+    "group": "tds",
+    "name": "tds:signal-module",
+    "rgba": [
+      0.065,
+      0.2,
+      0.29,
+      1
+    ]
+  },
+  {
+    "group": "tds",
+    "name": "tds:calibration-pot",
+    "rgba": [
+      0.14,
+      0.52,
+      0.9,
+      1
+    ]
+  },
+  {
+    "group": "led",
+    "name": "led:tds-light",
+    "rgba": [
+      0.09,
+      0.95,
+      0.6,
+      1
+    ]
+  },
+  {
+    "group": "tds",
+    "name": "tds:connector",
+    "rgba": [
+      0.9,
+      0.89,
+      0.81,
+      1
+    ]
+  },
+  {
+    "group": "display",
+    "name": "display:display-case",
+    "rgba": [
+      0.05,
+      0.13,
+      0.23,
+      1
+    ]
+  },
+  {
+    "group": "display",
+    "name": "display:screen",
+    "rgba": [
+      0.025,
+      0.09,
+      0.16,
+      1
+    ]
+  },
+  {
+    "group": "led",
+    "name": "led:status-power",
+    "rgba": [
+      0.09,
+      0.94,
+      0.6,
+      1
+    ]
+  },
+  {
+    "group": "led",
+    "name": "led:status-wifi",
+    "rgba": [
+      0.12,
+      0.69,
+      1,
+      1
+    ]
+  },
+  {
+    "group": "led",
+    "name": "led:status-valve",
+    "rgba": [
+      1,
+      0.74,
+      0.15,
+      1
+    ]
+  },
+  {
+    "group": "relay",
+    "name": "relay:module-board",
+    "rgba": [
+      0.08,
+      0.23,
+      0.48,
+      1
+    ]
+  },
+  {
+    "group": "relay",
+    "name": "relay:switch-block",
+    "rgba": [
+      0.06,
+      0.25,
+      0.63,
+      1
+    ]
+  },
+  {
+    "group": "relay",
+    "name": "relay:screw-terminal",
+    "rgba": [
+      0.13,
+      0.42,
+      0.71,
+      1
+    ]
+  },
+  {
+    "group": "chamber",
+    "name": "chamber:outer-chamber",
+    "rgba": [
+      0.53,
+      0.87,
+      0.98,
+      0.22
+    ]
+  },
+  {
+    "group": "water",
+    "name": "water:water-volume",
+    "rgba": [
+      0.18,
+      0.67,
+      0.84,
+      0.3
+    ]
+  },
+  {
+    "group": "chamber",
+    "name": "chamber:top-cover",
+    "rgba": [
+      0.53,
+      0.87,
+      0.98,
+      0.22
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:flow-mount--112--80",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:flow-mount--112--12",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:flow-mount-104--80",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "base",
+    "name": "base:flow-mount-104--12",
+    "rgba": [
+      0.35,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "ph",
+    "name": "ph:probe-body",
+    "rgba": [
+      0.15,
+      0.62,
+      0.91,
+      1
+    ]
+  },
+  {
+    "group": "ph",
+    "name": "ph:bulkhead-nut",
+    "rgba": [
+      0.13,
+      0.18,
+      0.23,
+      1
+    ]
+  },
+  {
+    "group": "wire",
+    "name": "wire:ph-lead",
+    "rgba": [
+      0.12,
+      0.2,
+      0.26,
+      1
+    ]
+  },
+  {
+    "group": "turbidity",
+    "name": "turbidity:probe-body",
+    "rgba": [
+      0.27,
+      0.42,
+      0.49,
+      1
+    ]
+  },
+  {
+    "group": "turbidity",
+    "name": "turbidity:bulkhead-nut",
+    "rgba": [
+      0.13,
+      0.18,
+      0.23,
+      1
+    ]
+  },
+  {
+    "group": "wire",
+    "name": "wire:turbidity-lead",
+    "rgba": [
+      0.12,
+      0.2,
+      0.26,
+      1
+    ]
+  },
+  {
+    "group": "tds",
+    "name": "tds:probe-body",
+    "rgba": [
+      0.84,
+      0.82,
+      0.62,
+      1
+    ]
+  },
+  {
+    "group": "tds",
+    "name": "tds:bulkhead-nut",
+    "rgba": [
+      0.13,
+      0.18,
+      0.23,
+      1
+    ]
+  },
+  {
+    "group": "wire",
+    "name": "wire:tds-lead",
+    "rgba": [
+      0.12,
+      0.2,
+      0.26,
+      1
+    ]
+  },
+  {
+    "group": "temperature",
+    "name": "temperature:probe-body",
+    "rgba": [
+      0.73,
+      0.77,
+      0.79,
+      1
+    ]
+  },
+  {
+    "group": "temperature",
+    "name": "temperature:bulkhead-nut",
+    "rgba": [
+      0.13,
+      0.18,
+      0.23,
+      1
+    ]
+  },
+  {
+    "group": "wire",
+    "name": "wire:temperature-lead",
+    "rgba": [
+      0.12,
+      0.2,
+      0.26,
+      1
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:inlet",
+    "rgba": [
+      0.27,
+      0.72,
+      0.94,
+      0.38
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:outlet",
+    "rgba": [
+      0.27,
+      0.72,
+      0.94,
+      0.38
+    ]
+  },
+  {
+    "group": "valve",
+    "name": "valve:brass-inline-body",
+    "rgba": [
+      0.79,
+      0.57,
+      0.21,
+      1
+    ]
+  },
+  {
+    "group": "valve",
+    "name": "valve:coil",
+    "rgba": [
+      0.13,
+      0.16,
+      0.21,
+      1
+    ]
+  },
+  {
+    "group": "valve",
+    "name": "valve:coil-cap",
+    "rgba": [
+      0.08,
+      0.12,
+      0.17,
+      1
+    ]
+  },
+  {
+    "group": "valve",
+    "name": "valve:plunger-visual",
+    "rgba": [
+      0.73,
+      0.75,
+      0.77,
+      1
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:pipe-collar--132",
+    "rgba": [
+      0.9,
+      0.94,
+      0.94,
+      1
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:pipe-collar--126",
+    "rgba": [
+      0.9,
+      0.94,
+      0.94,
+      1
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:pipe-collar-122",
+    "rgba": [
+      0.9,
+      0.94,
+      0.94,
+      1
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:pipe-collar-137",
+    "rgba": [
+      0.9,
+      0.94,
+      0.94,
+      1
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:pipe-collar-195",
+    "rgba": [
+      0.9,
+      0.94,
+      0.94,
+      1
+    ]
+  },
+  {
+    "group": "tube",
+    "name": "tube:pipe-collar-202",
+    "rgba": [
+      0.9,
+      0.94,
+      0.94,
+      1
+    ]
+  },
+  {
+    "group": "wire",
+    "name": "wire:power-bus",
+    "rgba": [
+      0.75,
+      0.19,
+      0.19,
+      1
+    ]
+  },
+  {
+    "group": "wire",
+    "name": "wire:data-bus",
+    "rgba": [
+      0.14,
+      0.73,
+      0.52,
+      1
+    ]
+  },
+  {
+    "group": "wire",
+    "name": "wire:valve-lead",
+    "rgba": [
+      0.8,
+      0.28,
+      0.2,
+      1
+    ]
+  }
+]

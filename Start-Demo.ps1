@@ -17,8 +17,10 @@ if($LASTEXITCODE){throw 'HTTPS certificate setup failed'}
 npm run seed
 if($LASTEXITCODE){throw 'MongoDB setup failed; start MongoDB or supply -MongoUri'}
 Pop-Location
+# New React Three Fiber / Drei dependencies require an updated frontend lockfile.
+# npm install resolves the added packages and updates the lockfile on this machine.
 Push-Location frontend
-npm ci --cache ../../npm-cache --no-audit --no-fund
+npm install --cache ../../npm-cache --no-audit --no-fund
 if($LASTEXITCODE){throw 'Frontend dependency setup failed'}
 npm run build
 if($LASTEXITCODE){throw 'Dashboard build failed'}

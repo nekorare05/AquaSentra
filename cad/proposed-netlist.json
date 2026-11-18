@@ -1,0 +1,1055 @@
+{
+  "status": "illustrative, not validated for assembly",
+  "pin_assignments": {
+    "pH": "ADC1 GPIO34 (through analog voltage scaling)",
+    "Turbidity": "ADC1 GPIO35 (through analog voltage scaling)",
+    "TDS": "ADC1 GPIO32 (module output must be proven <= ADC tolerance)",
+    "Temperature DQ": "GPIO4 with external 4.7 k\u03a9 pull-up to 3.3V",
+    "Relay IN": "GPIO26 (virtual-only; active polarity and boot state untested)",
+    "Independent switch": "GPIO27 (virtual-only, pull-up and debouncing unverified)",
+    "Solenoid +": "PSU fused +12 V -> relay NO -> valve +",
+    "Solenoid return": "valve - -> PSU return; never from GPIO"
+  },
+  "connections": [
+    {
+      "id": "psu_to_buck_plus",
+      "color": "red",
+      "source": "PSU +12V",
+      "destination": "buck converter VIN+",
+      "points": [
+        [
+          -168,
+          40,
+          122
+        ],
+        [
+          -179,
+          38,
+          109
+        ],
+        [
+          -179,
+          43,
+          90
+        ],
+        [
+          -166,
+          48,
+          79
+        ]
+      ],
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "psu_to_buck_ground",
+      "color": "black",
+      "source": "PSU 0V",
+      "destination": "buck converter VIN-",
+      "points": [
+        [
+          -154,
+          40,
+          122
+        ],
+        [
+          -160,
+          38,
+          102
+        ],
+        [
+          -173,
+          42,
+          79
+        ],
+        [
+          -165,
+          48,
+          71
+        ]
+      ],
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "fivev_to_esp32",
+      "color": "red",
+      "source": "buck regulated +5V",
+      "destination": "ESP32 VIN5V",
+      "points": [
+        [
+          -128,
+          48,
+          79
+        ],
+        [
+          -108,
+          39,
+          78
+        ],
+        [
+          -105,
+          39,
+          126
+        ],
+        [
+          -94,
+          66,
+          126.85
+        ]
+      ],
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "ground_to_esp32",
+      "color": "black",
+      "source": "buck ground",
+      "destination": "ESP32 GND",
+      "points": [
+        [
+          -128,
+          48,
+          71
+        ],
+        [
+          -115,
+          37,
+          69
+        ],
+        [
+          -107,
+          37,
+          148
+        ],
+        [
+          -94,
+          66,
+          148.6
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "supply_ph",
+      "color": "red",
+      "source": "buck +5V",
+      "destination": "ph module VCC",
+      "points": [
+        [
+          -128,
+          48,
+          79
+        ],
+        [
+          -103,
+          40,
+          78
+        ],
+        [
+          -35,
+          39,
+          82
+        ],
+        [
+          -30,
+          39,
+          207
+        ],
+        [
+          -10,
+          63,
+          208
+        ]
+      ],
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "ground_ph",
+      "color": "black",
+      "source": "buck GND",
+      "destination": "ph module GND",
+      "points": [
+        [
+          -128,
+          48,
+          71
+        ],
+        [
+          -116,
+          38,
+          69
+        ],
+        [
+          -40,
+          38,
+          85
+        ],
+        [
+          -37,
+          38,
+          203
+        ],
+        [
+          -7,
+          63,
+          204
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "supply_turb",
+      "color": "red",
+      "source": "buck +5V",
+      "destination": "turb module VCC",
+      "points": [
+        [
+          -128,
+          48,
+          79
+        ],
+        [
+          -103,
+          40,
+          78
+        ],
+        [
+          -35,
+          39,
+          82
+        ],
+        [
+          -30,
+          39,
+          163
+        ],
+        [
+          -10,
+          63,
+          164
+        ]
+      ],
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "ground_turb",
+      "color": "black",
+      "source": "buck GND",
+      "destination": "turb module GND",
+      "points": [
+        [
+          -128,
+          48,
+          71
+        ],
+        [
+          -116,
+          38,
+          69
+        ],
+        [
+          -40,
+          38,
+          85
+        ],
+        [
+          -37,
+          38,
+          159
+        ],
+        [
+          -7,
+          63,
+          160
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "supply_tds",
+      "color": "red",
+      "source": "buck +5V",
+      "destination": "tds module VCC",
+      "points": [
+        [
+          -128,
+          48,
+          79
+        ],
+        [
+          -103,
+          40,
+          78
+        ],
+        [
+          -35,
+          39,
+          82
+        ],
+        [
+          -30,
+          39,
+          119
+        ],
+        [
+          -10,
+          63,
+          120
+        ]
+      ],
+      "domain": "5V",
+      "note": "TDS module accepts 3.3\u20135.5V on verified DFRobot SEN0244; module variant must be checked."
+    },
+    {
+      "id": "ground_tds",
+      "color": "black",
+      "source": "buck GND",
+      "destination": "tds module GND",
+      "points": [
+        [
+          -128,
+          48,
+          71
+        ],
+        [
+          -116,
+          38,
+          69
+        ],
+        [
+          -40,
+          38,
+          85
+        ],
+        [
+          -37,
+          38,
+          115
+        ],
+        [
+          -7,
+          63,
+          116
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "ph_to_divider",
+      "color": "yellow",
+      "source": "PH-4502C analog PO",
+      "destination": "pH ADC voltage scaler input",
+      "points": [
+        [
+          -13,
+          63,
+          212
+        ],
+        [
+          -20,
+          51,
+          212
+        ],
+        [
+          -26,
+          48,
+          208
+        ]
+      ],
+      "domain": "signal",
+      "note": "Analog output must be limited to ESP32 ADC voltage range."
+    },
+    {
+      "id": "ph_div_to_gpio34",
+      "color": "yellow",
+      "source": "pH scaler output",
+      "destination": "ESP32 GPIO34 / ADC1_CH6",
+      "points": [
+        [
+          -26,
+          48,
+          198
+        ],
+        [
+          -40,
+          42,
+          197
+        ],
+        [
+          -101,
+          42,
+          188
+        ],
+        [
+          -94,
+          66,
+          187.75
+        ]
+      ],
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "ph_scaler_ground",
+      "color": "black",
+      "source": "pH scaler GND",
+      "destination": "common GND",
+      "points": [
+        [
+          -35,
+          48,
+          204
+        ],
+        [
+          -42,
+          42,
+          194
+        ],
+        [
+          -103,
+          39,
+          148
+        ],
+        [
+          -94,
+          66,
+          148.6
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "turb_to_divider",
+      "color": "yellow",
+      "source": "SEN0189 analog A",
+      "destination": "turbidity ADC voltage scaler input",
+      "points": [
+        [
+          -13,
+          63,
+          168
+        ],
+        [
+          -20,
+          51,
+          169
+        ],
+        [
+          -26,
+          48,
+          164
+        ]
+      ],
+      "domain": "signal",
+      "note": "SEN0189 analog output can exceed 3.3V."
+    },
+    {
+      "id": "turb_div_to_gpio35",
+      "color": "yellow",
+      "source": "turbidity scaler output",
+      "destination": "ESP32 GPIO35 / ADC1_CH7",
+      "points": [
+        [
+          -26,
+          48,
+          154
+        ],
+        [
+          -42,
+          41,
+          154
+        ],
+        [
+          -104,
+          41,
+          183
+        ],
+        [
+          -94,
+          66,
+          183.4
+        ]
+      ],
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "turb_scaler_ground",
+      "color": "black",
+      "source": "turbidity scaler GND",
+      "destination": "common GND",
+      "points": [
+        [
+          -35,
+          48,
+          160
+        ],
+        [
+          -43,
+          40,
+          153
+        ],
+        [
+          -109,
+          39,
+          148
+        ],
+        [
+          -94,
+          66,
+          148.6
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "tds_to_gpio32",
+      "color": "yellow",
+      "source": "TDS Meter V1.0 analog",
+      "destination": "ESP32 GPIO32 / ADC1_CH4",
+      "points": [
+        [
+          -13,
+          63,
+          124
+        ],
+        [
+          -31,
+          45,
+          124
+        ],
+        [
+          -45,
+          42,
+          131
+        ],
+        [
+          -101,
+          42,
+          179
+        ],
+        [
+          -94,
+          66,
+          179.05
+        ]
+      ],
+      "domain": "signal",
+      "note": "Assumes verified TDS module output <= ESP32 ADC max; measure actual output before building."
+    },
+    {
+      "id": "temperature_data",
+      "color": "yellow",
+      "source": "DS18B20 DQ",
+      "destination": "ESP32 GPIO4",
+      "points": [
+        [
+          80,
+          -47,
+          138
+        ],
+        [
+          91,
+          -12,
+          158
+        ],
+        [
+          82,
+          18,
+          164
+        ],
+        [
+          -37,
+          29,
+          163
+        ],
+        [
+          -50,
+          66,
+          152.95
+        ]
+      ],
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "temperature_supply",
+      "color": "red",
+      "source": "ESP32 3V3",
+      "destination": "DS18B20 VDD",
+      "points": [
+        [
+          -50,
+          66,
+          205.15
+        ],
+        [
+          -40,
+          36,
+          205
+        ],
+        [
+          99,
+          29,
+          205
+        ],
+        [
+          100,
+          -10,
+          146
+        ],
+        [
+          83,
+          -47,
+          136
+        ]
+      ],
+      "domain": "3V3",
+      "note": ""
+    },
+    {
+      "id": "temperature_ground",
+      "color": "black",
+      "source": "ESP32 GND",
+      "destination": "DS18B20 GND",
+      "points": [
+        [
+          -94,
+          66,
+          148.6
+        ],
+        [
+          -103,
+          35,
+          149
+        ],
+        [
+          96,
+          26,
+          146
+        ],
+        [
+          95,
+          -10,
+          139
+        ],
+        [
+          77,
+          -47,
+          136
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "temperature_pullup",
+      "color": "orange",
+      "source": "DS18B20 DQ",
+      "destination": "4.7k resistor to ESP32 3V3",
+      "points": [
+        [
+          -30,
+          36,
+          163
+        ],
+        [
+          -30,
+          36,
+          192
+        ],
+        [
+          -40,
+          36,
+          205
+        ]
+      ],
+      "domain": "3V3",
+      "note": "Conceptual 4.7k data pull-up. Verify physical module has no existing pull-up."
+    },
+    {
+      "id": "relay_gpio26",
+      "color": "yellow",
+      "source": "ESP32 GPIO26",
+      "destination": "relay module IN",
+      "points": [
+        [
+          -94,
+          66,
+          166.0
+        ],
+        [
+          -106,
+          40,
+          165
+        ],
+        [
+          86,
+          41,
+          146
+        ],
+        [
+          89,
+          64,
+          114
+        ]
+      ],
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "relay_5v",
+      "color": "red",
+      "source": "buck +5V",
+      "destination": "relay module VCC",
+      "points": [
+        [
+          -128,
+          48,
+          79
+        ],
+        [
+          -106,
+          38,
+          80
+        ],
+        [
+          82,
+          37,
+          90
+        ],
+        [
+          89,
+          64,
+          105
+        ]
+      ],
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "relay_ground",
+      "color": "black",
+      "source": "buck common GND",
+      "destination": "relay module GND",
+      "points": [
+        [
+          -128,
+          48,
+          71
+        ],
+        [
+          -109,
+          36,
+          70
+        ],
+        [
+          79,
+          36,
+          80
+        ],
+        [
+          89,
+          64,
+          96
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "fused_12v",
+      "color": "red",
+      "source": "PSU +12V",
+      "destination": "inline 12V fuse input",
+      "points": [
+        [
+          -168,
+          40,
+          122
+        ],
+        [
+          -181,
+          43,
+          112
+        ],
+        [
+          -182,
+          55,
+          72
+        ],
+        [
+          100,
+          55,
+          72
+        ],
+        [
+          106,
+          51,
+          76
+        ]
+      ],
+      "domain": "12V",
+      "note": "Illustrative fuse; rating requires selected valve and power supply specifications."
+    },
+    {
+      "id": "fused_12v_to_relay_com",
+      "color": "red",
+      "source": "inline fuse output",
+      "destination": "relay dry contact COM",
+      "points": [
+        [
+          122,
+          51,
+          76
+        ],
+        [
+          145,
+          48,
+          76
+        ],
+        [
+          166,
+          50,
+          80
+        ],
+        [
+          167,
+          52,
+          90
+        ]
+      ],
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "relay_no_to_valve",
+      "color": "red",
+      "source": "relay dry contact NO",
+      "destination": "valve coil +12V",
+      "points": [
+        [
+          167,
+          52,
+          101
+        ],
+        [
+          186,
+          40,
+          105
+        ],
+        [
+          184,
+          18,
+          132
+        ],
+        [
+          171,
+          -27,
+          128
+        ]
+      ],
+      "domain": "12V",
+      "note": "Contact energizes to open. Default NO open must cut power."
+    },
+    {
+      "id": "valve_to_12v_return",
+      "color": "black",
+      "source": "valve coil 0V",
+      "destination": "PSU 0V",
+      "points": [
+        [
+          166,
+          -27,
+          128
+        ],
+        [
+          178,
+          -16,
+          116
+        ],
+        [
+          184,
+          0,
+          42
+        ],
+        [
+          -182,
+          37,
+          42
+        ],
+        [
+          -154,
+          40,
+          122
+        ]
+      ],
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "feedback_gpio27",
+      "color": "green",
+      "source": "independent valve-position switch",
+      "destination": "ESP32 GPIO27",
+      "points": [
+        [
+          199,
+          -40,
+          101
+        ],
+        [
+          203,
+          6,
+          149
+        ],
+        [
+          -106,
+          35,
+          158
+        ],
+        [
+          -94,
+          66,
+          161.65
+        ]
+      ],
+      "domain": "feedback",
+      "note": "Switch is a concept only. GPIO27 digital input needs verified bias and debouncing."
+    },
+    {
+      "id": "feedback_ground",
+      "color": "black",
+      "source": "independent valve-position switch",
+      "destination": "ESP32 GND",
+      "points": [
+        [
+          199,
+          -40,
+          94
+        ],
+        [
+          205,
+          1,
+          136
+        ],
+        [
+          -108,
+          34,
+          143
+        ],
+        [
+          -94,
+          66,
+          148.6
+        ]
+      ],
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "ph_probe_to_bnc",
+      "color": "black",
+      "source": "E201 pH electrode BNC cable",
+      "destination": "PH-4502C BNC socket",
+      "points": [
+        [
+          -99,
+          -47,
+          139
+        ],
+        [
+          -100,
+          -27,
+          172
+        ],
+        [
+          -76,
+          8,
+          220
+        ],
+        [
+          55,
+          44,
+          225
+        ],
+        [
+          65,
+          77,
+          205
+        ]
+      ],
+      "domain": "probe",
+      "note": ""
+    },
+    {
+      "id": "turb_probe_to_board",
+      "color": "black",
+      "source": "SEN0189 optical probe cable",
+      "destination": "SEN0189 conditioning module",
+      "points": [
+        [
+          -40,
+          -47,
+          132
+        ],
+        [
+          -37,
+          -12,
+          150
+        ],
+        [
+          36,
+          27,
+          166
+        ],
+        [
+          51,
+          65,
+          165
+        ]
+      ],
+      "domain": "probe",
+      "note": ""
+    },
+    {
+      "id": "tds_probe_to_board",
+      "color": "black",
+      "source": "TDS conductivity probe cable",
+      "destination": "TDS Meter board",
+      "points": [
+        [
+          19,
+          -47,
+          132
+        ],
+        [
+          24,
+          -9,
+          145
+        ],
+        [
+          44,
+          29,
+          141
+        ],
+        [
+          51,
+          65,
+          121
+        ]
+      ],
+      "domain": "probe",
+      "note": ""
+    }
+  ]
+}

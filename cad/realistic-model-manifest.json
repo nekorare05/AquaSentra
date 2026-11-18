@@ -1,0 +1,23 @@
+{
+  "version": "3.0-orientation-and-netlist-fix",
+  "format": "GLB",
+  "units": "visual scene uses same scale as dashboard",
+  "total_mesh_nodes": 243,
+  "components": [
+    "ESP32-WROOM32 DevKit",
+    "PH-4502C conditioning module",
+    "E201 pH electrode",
+    "SEN0189 turbidity module and fork probe",
+    "TDS Meter V1.0 and two-electrode probe",
+    "DS18B20 stainless probe",
+    "Songle 5V relay",
+    "12V normally-closed solenoid valve",
+    "perforated switching supply",
+    "5V buck regulator",
+    "TFT-style display",
+    "acrylic water chamber"
+  ],
+  "netlist": "cad/proposed-netlist.json",
+  "connections": 33,
+  "warning": "Proposed, untested visual wiring mapped to selected board variants; verify voltage scaling, power protection, orientation and GPIO pin positions on actual purchased hardware."
+}

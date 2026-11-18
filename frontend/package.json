@@ -6,13 +6,17 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort --configLoader native",
     "build": "vite build --configLoader native",
-    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort --configLoader native"
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort --configLoader native",
+    "test:3d": "node --test tests/hardwareTwin.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "recharts": "^2.15.4"
+    "recharts": "^2.15.4",
+    "@react-three/fiber": "^8.18.0",
+    "@react-three/drei": "^9.122.0",
+    "three": "^0.170.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",

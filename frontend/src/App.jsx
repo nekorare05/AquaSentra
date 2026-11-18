@@ -3,7 +3,7 @@ import {
   Activity, AlertCircle, AlertTriangle, ArrowDownRight, ArrowUpRight,
   Bell, CheckCircle2, ChevronDown, CircleHelp, Clock3, Database, Droplets,
   FlaskConical, Gauge, History, LayoutDashboard, LockKeyhole, LogOut,
-  Menu, Radio, RefreshCcw, Search, Settings2, ShieldAlert, ShieldCheck,
+  Menu, Radio, RefreshCcw, Search, Settings2, Box, ShieldAlert, ShieldCheck,
   SlidersHorizontal, Thermometer, Wifi, WifiOff, X, ZapOff
 } from 'lucide-react';
 import {
@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { apiGet } from './api';
 import ResearchPanel from './ResearchPanel';
+import HardwareTwin from './HardwareTwin';
 
 const FIELDS = [
   { key: 'pH', title: 'pH level', unit: 'pH', tint: 'mint', icon: FlaskConical, decimals: 2 },
@@ -22,6 +23,7 @@ const FIELDS = [
 const SIDEBAR = [
   { id: 'overview', name: 'Overview', icon: LayoutDashboard },
   { id: 'history', name: 'Reading history', icon: History },
+  { id: 'hardware', name: '3D device explorer', icon: Box },
   { id: 'alerts', name: 'Alerts & events', icon: Bell },
   { id: 'settings', name: 'Parameters', icon: Settings2 }
 ];
@@ -264,10 +266,11 @@ export default function App() {
     <div className="app-main"><header className="topbar"><div className="top-left"><button className="menu-button icon-button" onClick={() => setMenuOpen(true)} aria-label="Open menu"><Menu size={21}/></button><div className="breadcrumb">Workspace <span>/</span> <strong>{SIDEBAR.find(s => s.id === page)?.name}</strong></div></div>
         <div className="top-right"><div className="header-device"><Radio size={16}/><select aria-label="Select device" value={selectedDevice || ''} onChange={e => setDeviceId(e.target.value)}>{(summary?.devices || []).map(d => <option key={d.device_id} value={d.device_id}>{d.device_id}</option>)}</select><ChevronDown size={14}/></div><button className="icon-button refresh-button" title="Refresh" aria-label="Refresh" onClick={() => { setLoading(true); setTick(v => v + 1); }}><RefreshCcw size={18} className={loading ? 'spin' : ''}/></button><button className="signout-button" onClick={logout}><LogOut size={17}/><span>Disconnect</span></button></div>
       </header>
-      <main className="page-content"><div className="page-intro"><div className="intro-left"><span className="breadcrumb-tag"><span/> AQUASENTRA / LIVE SYSTEM</span><h1>{page === 'overview' ? 'Overview' : SIDEBAR.find(s => s.id === page)?.name}</h1><p>{page === 'overview' ? 'A clearer view of your water-quality data.' : 'Research-focused monitoring and transparent provisional indicators.'}</p></div><div className="intro-right"><div className="refresh-state"><span className="live-orb"/> {fetchError ? 'Sync issue' : 'Monitoring'} <span className="refresh-time">· Updated {lastRefresh ? timeOnly(lastRefresh) : '—'}</span></div></div></div>
+      <main className="page-content"><div className="page-intro"><div className="intro-left"><span className="breadcrumb-tag"><span/> AQUASENTRA / LIVE SYSTEM</span><h1>{page === 'overview' ? 'Overview' : SIDEBAR.find(s => s.id === page)?.name}</h1><p>{page === 'overview' ? 'A clearer view of your water-quality data.' : page === 'hardware' ? 'Interactive digital twin of the proposed IoT hardware, driven by the existing simulator.' : 'Research-focused monitoring and transparent provisional indicators.'}</p></div><div className="intro-right"><div className="refresh-state"><span className="live-orb"/> {fetchError ? 'Sync issue' : 'Monitoring'} <span className="refresh-time">· Updated {lastRefresh ? timeOnly(lastRefresh) : '—'}</span></div></div></div>
         {(!online || fetchError) && <div className="error-banner"><WifiOff size={18}/>{!online ? 'Browser offline. Previously loaded data may be stale.' : fetchError}</div>}
         {page === 'overview' && <Overview summary={summary} readings={readings} alerts={alerts} params={params} selectedMetric={selectedMetric} onMetric={setSelectedMetric} setPage={setView}/>}
         {page === 'overview' && <ResearchPanel summary={summary} credentials={credentials}/>}
+        {page === 'hardware' && <HardwareTwin summary={summary}/>}
         {page === 'history' && <HistoryPage readings={readings} params={params} selectedMetric={selectedMetric} onMetric={setSelectedMetric} period={period} setPeriod={setPeriod}/>}
         {page === 'alerts' && <AlertsPage alerts={alerts} readings={readings}/>}
         {page === 'settings' && <SettingsPage params={params}/>}
