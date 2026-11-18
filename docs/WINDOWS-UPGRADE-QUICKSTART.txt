@@ -1,0 +1,40 @@
+AQUASENTRA STAGE 2 — WINDOWS UPGRADE QUICKSTART
+================================================
+
+1. Ctrl+C in your existing backend npm start window. Keep Docker Desktop open.
+2. Backup your existing AquaSentra folder if desired.
+3. Extract AquaSentra_Stage2_Prototype.zip into:
+   C:\Users\Nekorare\Documents\Capstone\prototype
+   Merge the AquaSentra source folder; do not create AquaSentra\AquaSentra.
+   DO NOT delete backend\.env, backend\certs or MongoDB Docker volume.
+
+A. DATABASE (AquaSentra root):
+   docker compose up -d
+   docker compose ps
+
+B. BACKEND (AquaSentra\backend):
+   npm install
+   npm run backfill:ratings
+   npm test
+   npm start
+
+C. FRONTEND (NEW PowerShell in AquaSentra\frontend):
+   npm install
+   npm run dev
+   Browser: http://127.0.0.1:5173
+   User ID: research-viewer
+   Token: actual BOOTSTRAP_VIEWER_TOKEN from backend\.env, do not paste it into chat.
+
+D. SIMULATOR (NEW PowerShell in AquaSentra root):
+   python simulator/simulator.py --scenario normal --count 5 --insecure-local
+   python simulator/simulator.py --scenario ph-spike --count 1 --insecure-local
+   python simulator/simulator.py --scenario high-tds --count 1 --insecure-local
+
+E. BACKEND INTEGRATION TESTS (NEW PowerShell in backend):
+   npm run test:smoke
+   npm run test:stage2-smoke
+
+All rating boundaries are provisional research placeholders in:
+  backend\config\parameters.json
+Never use dashboard classifications to certify drinking-water safety.
+There is no automatic valve control in Stage 2.

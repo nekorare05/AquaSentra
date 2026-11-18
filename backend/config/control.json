@@ -1,0 +1,20 @@
+{
+  "version": "demo-control-v1",
+  "provisional": true,
+  "mode": "virtual_only",
+  "option": "A",
+  "K": 3,
+  "K_c": 3,
+  "M": 2,
+  "T_max_seconds": 180,
+  "confirmation_wait_seconds": 2,
+  "confirmation_timeout_seconds": 30,
+  "retry_limit": 2,
+  "offline_threshold_N": 3,
+  "sampling_interval_seconds": 60,
+  "rearm_holdoff_seconds": 10,
+  "valve_ack_timeout_seconds": 4,
+  "max_closure_time_seconds": 8,
+  "simulated_ack_seconds": 1,
+  "simulated_verification_seconds": 2
+}

@@ -1,0 +1,140 @@
+
+> aquasentra-backend@0.1.0-stage1 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: ST1-15 valid reading persisted with no rating or inference
+ok 1 - ST1-15 valid reading persisted with no rating or inference
+  ---
+  duration_ms: 1.597928
+  type: 'test'
+  ...
+# Subtest: ST1-16 duplicate pair stored invalid, canonical survives
+ok 2 - ST1-16 duplicate pair stored invalid, canonical survives
+  ---
+  duration_ms: 0.64675
+  type: 'test'
+  ...
+# Subtest: ST1-17 invalid reading stored but not eligible
+ok 3 - ST1-17 invalid reading stored but not eligible
+  ---
+  duration_ms: 0.358227
+  type: 'test'
+  ...
+# Subtest: ST1-18 first invalid timestamp key still blocks later overwrite
+ok 4 - ST1-18 first invalid timestamp key still blocks later overwrite
+  ---
+  duration_ms: 0.438928
+  type: 'test'
+  ...
+# Subtest: ST1-19 invalid unparseable timestamp retained without canonical key
+ok 5 - ST1-19 invalid unparseable timestamp retained without canonical key
+  ---
+  duration_ms: 0.241222
+  type: 'test'
+  ...
+# Subtest: ST1-20 device-specific scrypt secret validates without plaintext stored
+ok 6 - ST1-20 device-specific scrypt secret validates without plaintext stored
+  ---
+  duration_ms: 190.303967
+  type: 'test'
+  ...
+# Subtest: ST1-21 repeated submissions serialize canonical claim in repository
+ok 7 - ST1-21 repeated submissions serialize canonical claim in repository
+  ---
+  duration_ms: 1.024528
+  type: 'test'
+  ...
+# Subtest: ST1-01 valid record meets schema, units, plausible ranges and time
+ok 8 - ST1-01 valid record meets schema, units, plausible ranges and time
+  ---
+  duration_ms: 2.27885
+  type: 'test'
+  ...
+# Subtest: ST1-02 missing sensor field is invalid
+ok 9 - ST1-02 missing sensor field is invalid
+  ---
+  duration_ms: 1.857168
+  type: 'test'
+  ...
+# Subtest: ST1-03 wrong units and unknown fields rejected
+ok 10 - ST1-03 wrong units and unknown fields rejected
+  ---
+  duration_ms: 0.477156
+  type: 'test'
+  ...
+# Subtest: ST1-04 out-of-range sensor rejected, distinct from rule rating
+ok 11 - ST1-04 out-of-range sensor rejected, distinct from rule rating
+  ---
+  duration_ms: 0.20012
+  type: 'test'
+  ...
+# Subtest: ST1-05 sensor fault and stuck flag rejected
+ok 12 - ST1-05 sensor fault and stuck flag rejected
+  ---
+  duration_ms: 0.188793
+  type: 'test'
+  ...
+# Subtest: ST1-06 clock unsynced rejects live decision
+ok 13 - ST1-06 clock unsynced rejects live decision
+  ---
+  duration_ms: 0.217076
+  type: 'test'
+  ...
+# Subtest: ST1-07 delayed record within backfill window is valid but not live eligible
+ok 14 - ST1-07 delayed record within backfill window is valid but not live eligible
+  ---
+  duration_ms: 0.19321
+  type: 'test'
+  ...
+# Subtest: ST1-08 expired delayed record invalid
+ok 15 - ST1-08 expired delayed record invalid
+  ---
+  duration_ms: 0.167872
+  type: 'test'
+  ...
+# Subtest: ST1-09 future clock reading invalid
+ok 16 - ST1-09 future clock reading invalid
+  ---
+  duration_ms: 0.418277
+  type: 'test'
+  ...
+# Subtest: ST1-10 mismatched credential device ID rejected from eligibility
+ok 17 - ST1-10 mismatched credential device ID rejected from eligibility
+  ---
+  duration_ms: 0.503055
+  type: 'test'
+  ...
+# Subtest: ST1-11 timezone offset supported; impossible calendar dates rejected
+ok 18 - ST1-11 timezone offset supported; impossible calendar dates rejected
+  ---
+  duration_ms: 0.5269
+  type: 'test'
+  ...
+# Subtest: ST1-12 missing record is invalid and cannot reach live decisions
+ok 19 - ST1-12 missing record is invalid and cannot reach live decisions
+  ---
+  duration_ms: 0.167351
+  type: 'test'
+  ...
+# Subtest: ST1-13 required status field invalidates record
+ok 20 - ST1-13 required status field invalidates record
+  ---
+  duration_ms: 0.175012
+  type: 'test'
+  ...
+# Subtest: ST1-14 physical plausibility differs from safety/potability classification
+ok 21 - ST1-14 physical plausibility differs from safety/potability classification
+  ---
+  duration_ms: 0.171187
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 283.520722

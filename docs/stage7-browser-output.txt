@@ -1,0 +1,11 @@
+PASS Login and integrated detection panel
+PASS No obsolete pending-stage labels
+PASS Mock explanation visible
+PASS AI fallback visible
+PASS Viewer blocked from control in browser
+PASS History renders stored measurements
+PASS Provisional parameter register renders
+PASS Mobile layout fits viewport
+PASS Credentials absent from localStorage
+PASS No browser runtime errors
+PASS Reload clears authenticated session

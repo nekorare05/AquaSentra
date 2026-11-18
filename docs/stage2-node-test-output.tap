@@ -1,0 +1,266 @@
+
+> aquasentra-backend@0.2.0-stage2 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: ST2-15 valid Normal persists rating and emits no warning
+ok 1 - ST2-15 valid Normal persists rating and emits no warning
+  ---
+  duration_ms: 1.091322
+  type: 'test'
+  ...
+# Subtest: ST2-16 valid Risky saves rating and early-warning alert
+ok 2 - ST2-16 valid Risky saves rating and early-warning alert
+  ---
+  duration_ms: 0.284038
+  type: 'test'
+  ...
+# Subtest: ST2-17 Critical on first valid sample produces immediate Critical alert
+ok 3 - ST2-17 Critical on first valid sample produces immediate Critical alert
+  ---
+  duration_ms: 0.178618
+  type: 'test'
+  ...
+# Subtest: ST2-18 delayed valid Risky has rating but creates NO live alert
+ok 4 - ST2-18 delayed valid Risky has rating but creates NO live alert
+  ---
+  duration_ms: 0.853774
+  type: 'test'
+  ...
+# Subtest: ST2-19 flagged sensor fault is excluded and gets notice
+ok 5 - ST2-19 flagged sensor fault is excluded and gets notice
+  ---
+  duration_ms: 0.181864
+  type: 'test'
+  ...
+# Subtest: ST2-20 duplicate alone is invalid, unrated, and not a sensor alert
+ok 6 - ST2-20 duplicate alone is invalid, unrated, and not a sensor alert
+  ---
+  duration_ms: 0.112068
+  type: 'test'
+  ...
+# Subtest: ST2-21 alert issuance never emits valve command, classification only
+ok 7 - ST2-21 alert issuance never emits valve command, classification only
+  ---
+  duration_ms: 0.586552
+  type: 'test'
+  ...
+# Subtest: ST1-15 valid reading persisted with no rating or inference
+ok 8 - ST1-15 valid reading persisted with no rating or inference
+  ---
+  duration_ms: 1.192633
+  type: 'test'
+  ...
+# Subtest: ST1-16 duplicate pair stored invalid, canonical survives
+ok 9 - ST1-16 duplicate pair stored invalid, canonical survives
+  ---
+  duration_ms: 0.570418
+  type: 'test'
+  ...
+# Subtest: ST1-17 invalid reading stored but not eligible
+ok 10 - ST1-17 invalid reading stored but not eligible
+  ---
+  duration_ms: 0.2522
+  type: 'test'
+  ...
+# Subtest: ST1-18 first invalid timestamp key still blocks later overwrite
+ok 11 - ST1-18 first invalid timestamp key still blocks later overwrite
+  ---
+  duration_ms: 0.406281
+  type: 'test'
+  ...
+# Subtest: ST1-19 invalid unparseable timestamp retained without canonical key
+ok 12 - ST1-19 invalid unparseable timestamp retained without canonical key
+  ---
+  duration_ms: 0.25964
+  type: 'test'
+  ...
+# Subtest: ST1-20 device-specific scrypt secret validates without plaintext stored
+ok 13 - ST1-20 device-specific scrypt secret validates without plaintext stored
+  ---
+  duration_ms: 125.333108
+  type: 'test'
+  ...
+# Subtest: ST1-21 repeated submissions serialize canonical claim in repository
+ok 14 - ST1-21 repeated submissions serialize canonical claim in repository
+  ---
+  duration_ms: 0.769628
+  type: 'test'
+  ...
+# Subtest: ST2-01 provisional parameter register is internally consistent
+ok 15 - ST2-01 provisional parameter register is internally consistent
+  ---
+  duration_ms: 0.940024
+  type: 'test'
+  ...
+# Subtest: ST2-02 Normal factors and overall Normal at inclusive boundary
+ok 16 - ST2-02 Normal factors and overall Normal at inclusive boundary
+  ---
+  duration_ms: 0.82459
+  type: 'test'
+  ...
+# Subtest: ST2-03 upper pH Normal boundary 8.5 inclusive
+ok 17 - ST2-03 upper pH Normal boundary 8.5 inclusive
+  ---
+  duration_ms: 0.126079
+  type: 'test'
+  ...
+# Subtest: ST2-04 just outside pH Normal enters Risky
+ok 18 - ST2-04 just outside pH Normal enters Risky
+  ---
+  duration_ms: 0.182805
+  type: 'test'
+  ...
+# Subtest: ST2-05 pH Risky outer boundaries inclusive
+ok 19 - ST2-05 pH Risky outer boundaries inclusive
+  ---
+  duration_ms: 0.178108
+  type: 'test'
+  ...
+# Subtest: ST2-06 pH beyond outer range Critical
+ok 20 - ST2-06 pH beyond outer range Critical
+  ---
+  duration_ms: 0.143756
+  type: 'test'
+  ...
+# Subtest: ST2-07 turbidity >5 to ≤10 Risky, >10 Critical
+ok 21 - ST2-07 turbidity >5 to ≤10 Risky, >10 Critical
+  ---
+  duration_ms: 0.158969
+  type: 'test'
+  ...
+# Subtest: ST2-08 TDS >600 to ≤900 Risky, >900 Critical
+ok 22 - ST2-08 TDS >600 to ≤900 Risky, >900 Critical
+  ---
+  duration_ms: 0.109175
+  type: 'test'
+  ...
+# Subtest: ST2-09 overall worst individual rating wins
+ok 23 - ST2-09 overall worst individual rating wins
+  ---
+  duration_ms: 0.265329
+  type: 'test'
+  ...
+# Subtest: ST2-10 temperature out of operational reference does not influence rating
+ok 24 - ST2-10 temperature out of operational reference does not influence rating
+  ---
+  duration_ms: 0.39195
+  type: 'test'
+  ...
+# Subtest: ST2-11 rejects missing or nonfinite metrics, never rates invalid records
+ok 25 - ST2-11 rejects missing or nonfinite metrics, never rates invalid records
+  ---
+  duration_ms: 0.381094
+  type: 'test'
+  ...
+# Subtest: ST2-12 changing editable thresholds changes rating deterministically
+ok 26 - ST2-12 changing editable thresholds changes rating deterministically
+  ---
+  duration_ms: 0.189445
+  type: 'test'
+  ...
+# Subtest: ST2-13 invalid or ambiguous threshold ordering fails closed at startup
+ok 27 - ST2-13 invalid or ambiguous threshold ordering fails closed at startup
+  ---
+  duration_ms: 0.168223
+  type: 'test'
+  ...
+# Subtest: ST2-14 all classifications explicitly carry parameter-set version
+ok 28 - ST2-14 all classifications explicitly carry parameter-set version
+  ---
+  duration_ms: 0.085909
+  type: 'test'
+  ...
+# Subtest: ST1-01 valid record meets schema, units, plausible ranges and time
+ok 29 - ST1-01 valid record meets schema, units, plausible ranges and time
+  ---
+  duration_ms: 1.617082
+  type: 'test'
+  ...
+# Subtest: ST1-02 missing sensor field is invalid
+ok 30 - ST1-02 missing sensor field is invalid
+  ---
+  duration_ms: 1.055517
+  type: 'test'
+  ...
+# Subtest: ST1-03 wrong units and unknown fields rejected
+ok 31 - ST1-03 wrong units and unknown fields rejected
+  ---
+  duration_ms: 0.284918
+  type: 'test'
+  ...
+# Subtest: ST1-04 out-of-range sensor rejected, distinct from rule rating
+ok 32 - ST1-04 out-of-range sensor rejected, distinct from rule rating
+  ---
+  duration_ms: 0.126381
+  type: 'test'
+  ...
+# Subtest: ST1-05 sensor fault and stuck flag rejected
+ok 33 - ST1-05 sensor fault and stuck flag rejected
+  ---
+  duration_ms: 0.117496
+  type: 'test'
+  ...
+# Subtest: ST1-06 clock unsynced rejects live decision
+ok 34 - ST1-06 clock unsynced rejects live decision
+  ---
+  duration_ms: 0.133801
+  type: 'test'
+  ...
+# Subtest: ST1-07 delayed record within backfill window is valid but not live eligible
+ok 35 - ST1-07 delayed record within backfill window is valid but not live eligible
+  ---
+  duration_ms: 0.143566
+  type: 'test'
+  ...
+# Subtest: ST1-08 expired delayed record invalid
+ok 36 - ST1-08 expired delayed record invalid
+  ---
+  duration_ms: 0.096695
+  type: 'test'
+  ...
+# Subtest: ST1-09 future clock reading invalid
+ok 37 - ST1-09 future clock reading invalid
+  ---
+  duration_ms: 0.241674
+  type: 'test'
+  ...
+# Subtest: ST1-10 mismatched credential device ID rejected from eligibility
+ok 38 - ST1-10 mismatched credential device ID rejected from eligibility
+  ---
+  duration_ms: 0.313361
+  type: 'test'
+  ...
+# Subtest: ST1-11 timezone offset supported; impossible calendar dates rejected
+ok 39 - ST1-11 timezone offset supported; impossible calendar dates rejected
+  ---
+  duration_ms: 0.439691
+  type: 'test'
+  ...
+# Subtest: ST1-12 missing record is invalid and cannot reach live decisions
+ok 40 - ST1-12 missing record is invalid and cannot reach live decisions
+  ---
+  duration_ms: 0.096235
+  type: 'test'
+  ...
+# Subtest: ST1-13 required status field invalidates record
+ok 41 - ST1-13 required status field invalidates record
+  ---
+  duration_ms: 0.095624
+  type: 'test'
+  ...
+# Subtest: ST1-14 physical plausibility differs from safety/potability classification
+ok 42 - ST1-14 physical plausibility differs from safety/potability classification
+  ---
+  duration_ms: 0.084678
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 192.090972

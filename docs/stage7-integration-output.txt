@@ -1,0 +1,45 @@
+PASS Anonymous dashboard denied
+PASS Viewer restoration denied
+Reading: normal; rule=Normal; model=Normal; decision=normal
+Virtual supply restored; re-arm holdoff completed.
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=awaiting_confirmation
+Reading: abnormal; rule=Critical; model=Anomalous; decision=isolation_commanded
+Virtual valve: {"virtual": true, "commanded": "closed", "acknowledged": "closed", "verified": "closed", "fault": null, "relay_energized": false, "simulated_position": "closed", "supply_status": "simulated_isolated", "command_id": "0a5e4c01-0a30-4839-8ad0-0aca42f48843", "commanded_at": 1794924017106, "acknowledged_at": 1794924018265, "verified_at": 1794924019283}
+PASS End-to-end confirmed virtual closure
+Reading: invalid; rule=None; model=None; decision=invalid_reading
+Reading: delayed; rule=Normal; model=None; decision=invalid_reading
+PASS Invalid and delayed cannot replace command
+PASS Duplicate stored but excluded
+Reading: normal; rule=Normal; model=Normal; decision=normal
+Virtual supply restored; re-arm holdoff completed.
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=awaiting_confirmation
+Reading: abnormal; rule=Critical; model=Anomalous; decision=isolation_commanded
+Virtual valve: {"virtual": true, "commanded": "closed", "acknowledged": null, "verified": null, "fault": "ack_timeout", "relay_energized": true, "simulated_position": "open", "supply_status": "unknown", "command_id": "504a5600-78cd-4b01-a1c2-e844a336c7a2", "commanded_at": 1794924033700, "acknowledged_at": null, "verified_at": null}
+PASS no_ack is not verified
+Reading: normal; rule=Normal; model=Normal; decision=normal
+Virtual supply restored; re-arm holdoff completed.
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=awaiting_confirmation
+Reading: abnormal; rule=Critical; model=Anomalous; decision=isolation_commanded
+Virtual valve: {"virtual": true, "commanded": "closed", "acknowledged": "closed", "verified": null, "fault": "position_mismatch", "relay_energized": false, "simulated_position": "open", "supply_status": "unknown", "command_id": "3e7f5838-6f61-4f87-b2cb-49e433a7e5fd", "commanded_at": 1794924051588, "acknowledged_at": 1794924052987, "verified_at": null}
+PASS stuck is not verified
+Reading: normal; rule=Normal; model=Normal; decision=normal
+Virtual supply restored; re-arm holdoff completed.
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=unconfirmed_anomaly
+Reading: abnormal; rule=Critical; model=Anomalous; decision=awaiting_confirmation
+Reading: abnormal; rule=Critical; model=Anomalous; decision=isolation_commanded
+Virtual valve: {"virtual": true, "commanded": "closed", "acknowledged": "closed", "verified": null, "fault": "verification_timeout", "relay_energized": false, "simulated_position": "open", "supply_status": "unknown", "command_id": "39645827-cbdc-4323-9c8a-f7e1dd0947aa", "commanded_at": 1794924073264, "acknowledged_at": 1794924074380, "verified_at": null}
+PASS no_feedback is not verified
+PASS Power loss has no fabricated verification
+PASS mock explanation isolated from control
+PASS unavailable explanation isolated from control
+PASS MongoDB history contains model and decision
+Reading: normal; rule=Normal; model=Normal; decision=normal
+Virtual supply restored; re-arm holdoff completed.
+ALL 12 LIVE INTEGRATION CHECKS PASSED

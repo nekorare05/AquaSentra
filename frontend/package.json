@@ -1,0 +1,22 @@
+{
+  "name": "aquasentra-dashboard",
+  "private": true,
+  "version": "0.2.0-stage2",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort --configLoader native",
+    "build": "vite build --configLoader native",
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort --configLoader native"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.15.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@vitejs/plugin-react": "^4.4.1",
+    "vite": "^6.1.0"
+  }
+}

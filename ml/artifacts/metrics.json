@@ -1,0 +1,73 @@
+{
+  "model_version": "synthetic-xgb-v1",
+  "synthetic_only": true,
+  "features": [
+    "pH",
+    "turbidity",
+    "TDS",
+    "temperature_c"
+  ],
+  "decision_window_len": 1,
+  "seed": 1707,
+  "threshold": 0.3,
+  "selected_depth": 2,
+  "split": {
+    "train_episodes": [
+      0,
+      179
+    ],
+    "validation_episodes": [
+      180,
+      239
+    ],
+    "test_episodes": [
+      240,
+      299
+    ]
+  },
+  "sample_counts": [
+    2880,
+    960,
+    960
+  ],
+  "test_prevalence": 0.36666666666666664,
+  "evaluation": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "pr_auc_average_precision": 1.0,
+    "confusion_matrix": [
+      [
+        608,
+        0
+      ],
+      [
+        0,
+        352
+      ]
+    ]
+  },
+  "baseline": {
+    "precision": 0.9971671388101983,
+    "recall": 1.0,
+    "f1": 0.9985815602836879,
+    "pr_auc_average_precision": 0.9971671388101983,
+    "confusion_matrix": [
+      [
+        607,
+        1
+      ],
+      [
+        0,
+        352
+      ]
+    ]
+  },
+  "limitations": [
+    "Labels identify injected synthetic episodes, not laboratory water safety.",
+    "No GECCO or local household dataset used.",
+    "Window length 1 uses only current measurements; temporal anomaly learning is not validated.",
+    "Held-out episodes share the generator; real-world generalization is unknown."
+  ],
+  "dataset_sha256": "ca658704b9a7dc89cf56c74e3111de04cbbb2e62cc3914eee414bc2941f20be6"
+}

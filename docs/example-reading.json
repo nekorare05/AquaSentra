@@ -1,0 +1,13 @@
+{
+  "device_id": "AS-ESP32-001",
+  "measured_at": "2026-11-15T09:00:00.000Z",
+  "pH": 7.2,
+  "turbidity": 1.8,
+  "turbidity_unit": "NTU",
+  "TDS": 285.0,
+  "tds_unit": "mg/L",
+  "temperature_c": 26.5,
+  "sensor_status": { "ph": "ok", "turbidity": "ok", "tds": "ok", "temperature": "ok", "clock": "synced" },
+  "boot_flag": false,
+  "purpose": "routine"
+}

@@ -1,0 +1,17 @@
+{
+  "passed": 11,
+  "checks": [
+    "Login and integrated detection panel",
+    "No obsolete pending-stage labels",
+    "Mock explanation visible",
+    "AI fallback visible",
+    "Viewer blocked from control in browser",
+    "History renders stored measurements",
+    "Provisional parameter register renders",
+    "Mobile layout fits viewport",
+    "Credentials absent from localStorage",
+    "No browser runtime errors",
+    "Reload clears authenticated session"
+  ],
+  "errors": []
+}

@@ -1,0 +1,11 @@
+test_calibration_is_explicitly_applied (test_simulator.SimulationTests.test_calibration_is_explicitly_applied) ... ok
+test_delayed_preserves_original_timestamp (test_simulator.SimulationTests.test_delayed_preserves_original_timestamp) ... ok
+test_duplicate_exact_payload (test_simulator.SimulationTests.test_duplicate_exact_payload) ... ok
+test_failed_sensor_and_reset (test_simulator.SimulationTests.test_failed_sensor_and_reset) ... ok
+test_required_record_fields (test_simulator.SimulationTests.test_required_record_fields) ... ok
+test_unsynced_clock (test_simulator.SimulationTests.test_unsynced_clock) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK

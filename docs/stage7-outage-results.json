@@ -1,0 +1,5 @@
+{
+  "ml_unavailable_explicit": true,
+  "no_command_on_ml_outage": true,
+  "restoration_denied_without_valid_model": true
+}

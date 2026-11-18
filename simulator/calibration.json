@@ -1,0 +1,11 @@
+{
+  "version": "placeholder-identity-v1",
+  "provisional": true,
+  "warning": "Simulated raw values and identity coefficients only. Do not use for hardware without calibration of each sensor and ADC signal conditioning.",
+  "channels": {
+    "pH": {"slope": 1.0, "offset": 0.0, "unit": "pH"},
+    "turbidity": {"slope": 1.0, "offset": 0.0, "unit": "NTU"},
+    "TDS": {"slope": 1.0, "offset": 0.0, "unit": "mg/L"},
+    "temperature_c": {"slope": 1.0, "offset": 0.0, "unit": "°C"}
+  }
+}

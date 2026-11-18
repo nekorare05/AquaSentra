@@ -1,0 +1,24 @@
+{
+  "name": "aquasentra-backend",
+  "version": "0.2.0-stage2",
+  "private": true,
+  "description": "AquaSentra research prototype: ingestion, provisional ratings, alerts, React PWA",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node scripts/seed.js",
+    "dev:cert": "node scripts/generateDevCert.js",
+    "test": "node --test tests/*.test.js",
+    "test:smoke": "node scripts/smoke.js",
+    "backfill:ratings": "node scripts/backfillRatings.js",
+    "test:stage2-smoke": "node scripts/stage2Smoke.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "mongoose": "^8.18.0"
+  }
+}

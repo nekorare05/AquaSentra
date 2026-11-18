@@ -1,0 +1,65 @@
+# ========================================
+# AQUASENTRA - GITIGNORE
+# ========================================
+
+# Environment variables and credentials
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+!.env.*.example
+!**/.env.*.example
+
+# HTTPS certificates and private keys
+**/certs/*
+!**/certs/.gitkeep
+*.pem
+*.key
+
+# Node.js dependencies
+node_modules/
+**/node_modules/
+npm-debug.log*
+
+# Python environments and cache
+.venv/
+**/.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+**/.pytest_cache/
+*.egg-info/
+
+# Frontend build outputs
+dist/
+**/dist/
+build/
+**/build/
+coverage/
+
+# PlatformIO and ESP32
+.pio/
+.pio-core/
+firmware/.pio/
+firmware/include/config.h
+
+# Simulator temporary files
+simulator/pending.jsonl
+
+# Logs and temporary files
+logs/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Editor configuration
+.vscode/
+.idea/
+
+# Local testing
+.cache/

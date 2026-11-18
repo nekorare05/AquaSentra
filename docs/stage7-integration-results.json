@@ -1,0 +1,20 @@
+{
+  "passed": 12,
+  "checks": [
+    "Anonymous dashboard denied",
+    "Viewer restoration denied",
+    "End-to-end confirmed virtual closure",
+    "Invalid and delayed cannot replace command",
+    "Duplicate stored but excluded",
+    "no_ack is not verified",
+    "stuck is not verified",
+    "no_feedback is not verified",
+    "Power loss has no fabricated verification",
+    "mock explanation isolated from control",
+    "unavailable explanation isolated from control",
+    "MongoDB history contains model and decision"
+  ],
+  "hardware_tested": false,
+  "database": "aquasentra_stage7_demo",
+  "time": "2026-11-17T14:01:33.076377+00:00"
+}

@@ -1,0 +1,22 @@
+{
+  "original_config_and_certificates": [
+    {
+      "path": "backend\\.env",
+      "unchanged": true
+    },
+    {
+      "path": "backend\\certs\\.gitkeep",
+      "unchanged": true
+    },
+    {
+      "path": "backend\\certs\\dev-cert.pem",
+      "unchanged": true
+    },
+    {
+      "path": "backend\\certs\\dev-key.pem",
+      "unchanged": true
+    }
+  ],
+  "stage1_backup_present": true,
+  "original_project_not_written": true
+}

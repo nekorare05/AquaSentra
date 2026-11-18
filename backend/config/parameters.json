@@ -1,0 +1,61 @@
+{
+  "parameter_set_version": "stage2-provisional-2026-11-15-v1",
+  "provisional": true,
+  "review_required_before_isolation": true,
+  "comment": "Study-defined research placeholders; virtual valve automation only; no physical certification.",
+  "sampling_interval_seconds": 60,
+  "timestamp_tolerance_seconds": 120,
+  "max_delayed_record_age_seconds": 86400,
+  "dashboard_offline_after_seconds": 180,
+  "dashboard_refresh_seconds": 5,
+  "sensor_plausible_ranges": {
+    "pH": {
+      "min": 0,
+      "max": 14,
+      "unit": "pH"
+    },
+    "turbidity": {
+      "min": 0,
+      "max": 3000,
+      "unit": "NTU"
+    },
+    "TDS": {
+      "min": 0,
+      "max": 1000,
+      "unit": "mg/L"
+    },
+    "temperature_c": {
+      "min": -55,
+      "max": 125,
+      "unit": "\u00c2\u00b0C"
+    }
+  },
+  "rule_rating": {
+    "provisional": true,
+    "configuration_status": "STUDY-DEFINED PLACEHOLDERS \u00e2\u20ac\u201d NOT CERTIFIED",
+    "notes": "A Critical rating is a study-defined escalation category, not proof water is unsafe. A Normal rating does not certify potability.",
+    "pH": {
+      "normal_min": 6.5,
+      "normal_max": 8.5,
+      "risky_outer_min": 6.0,
+      "risky_outer_max": 9.0,
+      "description": "Normal inclusive 6.5\u00e2\u20ac\u201c8.5; Risky outside Normal but inside 6.0\u00e2\u20ac\u201c9.0 inclusive; Critical outside 6.0\u00e2\u20ac\u201c9.0."
+    },
+    "turbidity": {
+      "normal_max": 5,
+      "risky_max": 10,
+      "description": "Normal \u00e2\u2030\u00a45 NTU; Risky >5 to \u00e2\u2030\u00a410; Critical >10."
+    },
+    "TDS": {
+      "normal_max": 600,
+      "risky_max": 900,
+      "description": "Normal \u00e2\u2030\u00a4600 mg/L; Risky >600 to \u00e2\u2030\u00a4900; Critical >900."
+    },
+    "temperature_operational_reference": {
+      "min": 15,
+      "max": 35,
+      "description": "Provisional engineering context ONLY; temperature never changes the overall water rating."
+    }
+  },
+  "control_configuration": "control.json"
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/aquasentra/reading.v1.schema.json",
+  "title": "AquaSentra sensor record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "device_id",
+    "measured_at",
+    "pH",
+    "turbidity",
+    "turbidity_unit",
+    "TDS",
+    "tds_unit",
+    "temperature_c",
+    "sensor_status",
+    "boot_flag"
+  ],
+  "properties": {
+    "device_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,63}$"
+    },
+    "measured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 with timezone, retained from original measurement",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,3})?(Z|[+-](0\\d|1[0-4]):[0-5]\\d)$"
+    },
+    "pH": {
+      "type": "number"
+    },
+    "turbidity": {
+      "type": "number"
+    },
+    "turbidity_unit": {
+      "const": "NTU"
+    },
+    "TDS": {
+      "type": "number"
+    },
+    "tds_unit": {
+      "const": "mg/L"
+    },
+    "temperature_c": {
+      "type": "number"
+    },
+    "boot_flag": {
+      "type": "boolean"
+    },
+    "purpose": {
+      "enum": [
+        "routine",
+        "repeat_confirmation"
+      ]
+    },
+    "sensor_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ph",
+        "turbidity",
+        "tds",
+        "temperature",
+        "clock"
+      ],
+      "properties": {
+        "ph": {
+          "enum": [
+            "ok",
+            "fault",
+            "stuck",
+            "missing"
+          ]
+        },
+        "turbidity": {
+          "enum": [
+            "ok",
+            "fault",
+            "stuck",
+            "missing"
+          ]
+        },
+        "tds": {
+          "enum": [
+            "ok",
+            "fault",
+            "stuck",
+            "missing"
+          ]
+        },
+        "temperature": {
+          "enum": [
+            "ok",
+            "fault",
+            "stuck",
+            "missing"
+          ]
+        },
+        "clock": {
+          "enum": [
+            "synced",
+            "unsynced"
+          ]
+        }
+      }
+    }
+  }
+}
