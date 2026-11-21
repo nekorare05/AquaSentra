@@ -24,7 +24,7 @@ async function assessStoredReading({ saved, readings, alerts, params }) {
         reading_id: saved._id, device_id: saved.device_id,
         kind: critical ? 'critical' : 'early_warning', severity: rating.overall,
         title: critical ? 'Critical reference-range alert' : 'Early warning: outside Normal reference',
-        message: 'Provisional study-defined rating; validate sensor calibration and consult laboratory testing. This rating alert alone does not authorize isolation; consult the separate control journal.',
+        message: 'Provisional study-defined rating; validate sensor calibration and consult laboratory testing. No valve action is taken by this alert; this rating alert alone does not authorize isolation; consult the separate control journal.',
         rating: rating.overall, parameter_set_version: params.parameter_set_version,
         occurred_at: new Date()
       } }, { upsert: true });

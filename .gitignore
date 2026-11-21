@@ -63,3 +63,8 @@ Thumbs.db
 
 # Local testing
 .cache/
+
+# Local backups
+frontend_backup_*/
+*_backup/
+*_backup_*

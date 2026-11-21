@@ -1,124 +1,294 @@
-# AquaSentra — Stages 1–7 software prototype
+# AquaSentra — Separate Web Dashboard & Standalone 3D Laboratory
 
-Research demonstration only. Sensors, relay, NC valve and independent position feedback are
-simulated. A Normal rating does not certify potability. No physical valve control transport exists.
+Research demonstration prototype. Physical sensors, relay, normally closed solenoid valve, and independent position feedback switch are simulated. A Normal rating does not certify water potability. No physical valve control transport exists.
 
-## Run the completed demo
+---
 
-The tested working copy is in this project directory. The original Capstone project and Stage 1
-backup were left intact. Existing .env and certificates were copied unchanged for local use; they
-are excluded from the distributable ZIP.
+## 1. System Architecture Overview
 
-Services for this demonstration use:
+The AquaSentra Stages 1–7 prototype is refactored into **two independent frontend applications sharing the existing backend infrastructure**:
 
-| Component | Address |
-|---|---|
-| Built React PWA | http://127.0.0.1:4173 |
-| HTTPS API | https://127.0.0.1:8444/api/v1/health |
-| FastAPI | http://127.0.0.1:8001/health |
-| Isolated demo MongoDB database | mongodb://127.0.0.1:27017/aquasentra_stage7_demo |
+```
+                       ┌──────────────────────────────────────────────┐
+                       │           SHARED BACKEND SERVICES            │
+                       ├──────────────────────────────────────────────┤
+                       │  • Node.js / Express HTTPS API (Port 8444)   │
+                       │  • Python FastAPI / XGBoost (Port 8001)      │
+                       │  • MongoDB Database (Port 27017)             │
+                       │  • Sensor Simulator & Virtual Actuators      │
+                       └──────────────────────┬───────────────────────┘
+                                              │
+                    ┌─────────────────────────┴─────────────────────────┐
+                    ▼                                                   ▼
+┌────────────────────────────────────────┐ ┌────────────────────────────────────────┐
+│     MAIN AQUASENTRA WEB DASHBOARD      │ │        STANDALONE AQUASENTRA 3D LAB    │
+│              (/frontend)               │ │              (/device-lab)             │
+├────────────────────────────────────────┤ ├────────────────────────────────────────┤
+│ • Port: http://127.0.0.1:4173 (preview)│ │ • Port: http://127.0.0.1:4174 (preview)│
+│ • Port: http://127.0.0.1:5173 (dev)    │ │ • Port: http://127.0.0.1:5174 (dev)    │
+│ • Professional household water monitor │ │ • React Three Fiber & Three.js 3D app  │
+│ • Clean white & slate design (no glow) │ │ • Three core pages:                    │
+│ • 6 Dedicated Pages:                   │ │   1. Complete Device (exploded view,   │
+│   1. Overview                          │ │      wiring filters, enclosure toggle) │
+│   2. Readings & History (charts/table) │ │   2. IoT Operation Simulation (10 steps│
+│   3. Alerts & Events (filters/records) │ │      with 7 scenarios & 3D sync)       │
+│   4. Detection (XGBoost/persistence/AI)│ │   3. Component Library (9 individual   │
+│   5. Valve Control (journal/admin)     │ │      standalone 3D component models)   │
+│   6. Parameters & Settings             │ │ • 33 Netlist connections documented    │
+│ • Simple external link to 3D Lab       │ │ • Simple return link to Main Dashboard │
+└────────────────────────────────────────┘ └────────────────────────────────────────┘
+```
 
-Docker Desktop was launched but no usable engine pipe became available. The existing native
-MongoDB service was reachable, so the demo uses a new database; it does not move or overwrite
-Stage 1 data. Docker repair requiring broader Windows access remains unresolved. The original
-Docker Compose configuration and .env connection string remain unchanged.
+Both frontend applications communicate with the same backend without duplicating control logic or creating conflicting system states.
 
-After stopping any already-running demo instances, run in PowerShell from this directory:
+---
 
+## 2. Local Access Endpoints
+
+| Application / Service | Local URL | Role |
+|---|---|---|
+| **Main Web Dashboard** | `http://127.0.0.1:4173` | Household water-quality monitoring dashboard (6 pages) |
+| **Standalone 3D Lab** | `http://127.0.0.1:4174` | Interactive 3D hardware assembly, guided IoT simulation, and 9-component gallery |
+| **Node.js HTTPS API** | `https://127.0.0.1:8444/api/v1/health` | Authenticated ingestion, validation, rule evaluation, control journal |
+| **FastAPI ML Service** | `http://127.0.0.1:8001/health` | Trained XGBoost supervised anomaly inference (`model.ubj`) |
+| **MongoDB Service** | `mongodb://127.0.0.1:27017/aquasentra_stage7_demo` | Durable database for readings, alerts, control events |
+
+---
+
+## 3. Running the Applications
+
+### Launch Everything Together (Default)
+Run from the root `AquaSentra` directory in PowerShell:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\Start-Demo.ps1
 ```
+This launcher automatically seeds the database, builds both frontend applications, starts FastAPI, starts the Node.js HTTPS API, and opens both web applications on ports 4173 and 4174.
 
-Keep that terminal open. The launcher installs locked dependencies, preserves existing TLS files,
-seeds only the selected demo DB, builds the dashboard, starts services hidden, and stops its own
-services on Ctrl+C. To use Docker MongoDB when available, pass
-`-MongoUri mongodb://127.0.0.1:27018/aquasentra_stage7_demo`.
-Do not run the launcher twice concurrently. Source changes require restarting services.
-
-Sign in with `research-viewer` or `research-admin` and the corresponding token in `backend/.env`.
-Never paste those tokens into documentation or commit them. In another terminal:
-
+### Launch Applications Separately
+You can launch components independently using the `-App` parameter:
 ```powershell
+# Launch only the Main Web Dashboard + Backend:
+powershell -ExecutionPolicy Bypass -File .\Start-Demo.ps1 -App frontend
+
+# Launch only the Standalone 3D Lab + Backend:
+powershell -ExecutionPolicy Bypass -File .\Start-Demo.ps1 -App device-lab
+
+# Launch only Backend services (FastAPI + Node.js API):
+powershell -ExecutionPolicy Bypass -File .\Start-Demo.ps1 -App backend
+```
+
+Press `Ctrl+C` in the terminal to stop services started by the launcher.
+
+---
+
+## 4. Application 1: Main AquaSentra Web Application (`/frontend`)
+
+The dashboard features a clean, professional household water-quality monitoring design with white and slate gray surfaces and restrained blue/teal accents.
+
+### Six Main Pages:
+1. **Overview**:
+   - Real-time telemetry cards for **pH**, **turbidity (NTU)**, **TDS (mg/L)**, and **temperature (°C)**.
+   - Classification card showing the overall rule rating (**Normal**, **Risky**, **Critical**) with safety disclaimers.
+   - Connected sensor device status, last contact timestamp, and parameter set version.
+   - Interactive time-series trend preview chart.
+   - System health summary (Telemetry Acquisition, Rules Engine, XGBoost Inference, Virtual Valve Isolation, Fluid Flow).
+   - Recent alerts and data quality statistics.
+   - Integrated quick simulation control panel for automated test verification.
+2. **Readings and History**:
+   - Full-width interactive chart with provisional reference guide overlays.
+   - Time-range selector (All available, Past 24 hours, Past 7 days).
+   - Metric selector (pH, Turbidity, TDS, Temperature).
+   - "Warnings / faults only" filter checkbox.
+   - Tabular historical records with raw sensor values, timestamps, rating pills, and record validity badges (`Valid`, `Invalid: CODES`, `Delayed`).
+3. **Alerts**:
+   - Severity counters for Critical alerts, Early warnings, and Sensor faults.
+   - Filter dropdown (All alert types, Critical, Early warning, Sensor fault).
+   - Detailed event journal with timestamps, device ID, alert title, message, and guidance.
+4. **Detection**:
+   - Real-time XGBoost inference details: Status, Prediction Class, Anomaly Decision Score, Threshold (0.50), format (`model.ubj`), and synthetic training disclosure.
+   - Persistence & Confirmation counters: ML consecutive anomaly counter ($K$), Critical counter, and repeat confirmation status ($C$).
+   - Secondary AI Explanations panel: Informational text generator with "Explain current state" (mock provider) and "Demonstrate AI fallback" buttons. Explanations cannot modify control or detection decisions.
+5. **Valve Control**:
+   - Virtual Valve State: Commanded state, Acknowledged state, Simulated verified state, Fault status, Virtual supply status.
+   - Critical safety notices: Software simulation only; relay acknowledgment is strictly separated from verified mechanical closure.
+   - Administrator simulation controls: Physical inspection checkbox, "Restore virtual supply" action, and fault injection triggers (`none`, `no_ack`, `stuck`, `no_feedback`, `power_loss`).
+   - Control Event Journal: Auditable log of commands, acknowledgments, faults, and restorations.
+6. **Settings**:
+   - Active Parameter Set version and read-only status chip.
+   - Reference limits for pH (Normal 6.5–8.5, Risky outer bounds 6.0–9.0, Critical beyond Risky).
+   - Reference limits for Turbidity (Normal ≤5.0 NTU, Risky ≤10.0 NTU, Critical >10.0 NTU).
+   - Reference limits for TDS (Normal ≤600 mg/L, Risky ≤900 mg/L, Critical >900 mg/L).
+   - Operational parameters (Temperature range 15–35 °C, Offline timeout 30s, Sampling interval 10s).
+   - Active user session details and token storage security disclaimer (in tab memory only).
+
+### External Navigation to 3D Lab:
+The embedded 3D explorer has been removed from the main dashboard navigation. Instead, a dedicated external link in the sidebar directly opens the **Standalone AquaSentra 3D Lab** in a new browser tab.
+
+---
+
+## 5. Application 2: Standalone AquaSentra 3D Lab (`/device-lab`)
+
+A standalone React + Vite application utilizing **React Three Fiber** and **Three.js** to deliver interactive 3D inspection and operational simulation.
+
+### Three Main Pages:
+
+### Page 1: Complete Device
+- **Interactive 3D Assembly**: Fully assembled AquaSentra digital twin loaded from `aquasentra-device.glb`. Orbit controls support 360° rotation, panning, and zooming.
+- **Click-to-Inspect**: Clicking any mesh highlights the part and opens the inspector drawer displaying component identity, operating voltage, role, purpose, and proposed pin connections.
+- **Exploded Assembly View**: Smoothly offsets components along their mechanical axes to expose internal modules.
+- **Wiring Filter**:
+  - `GPIO Signals & Bus`: Shows signal leads connected to ESP32 ADC and digital GPIOs.
+  - `Power & DC Ground Rails`: Shows 12V supply bus, 5V regulated rail, and common DC ground.
+  - `Sensor Probe Cables`: Shows shielded probe leads to conditioning modules.
+  - `All 33 Net Connections`: Displays the full wiring harness.
+  - `Hide All Wiring`: Hides wire leads for clean mechanical inspection.
+- **Enclosure Toggle**: Shows or hides transparent acrylic guards and panels.
+- **Proposed Wiring Documentation Modal**: Features the complete 33-connection netlist table from `modelConnections.json`, the ESP32 pin allocation chart, and voltage scaling disclaimers.
+
+### Page 2: IoT Operation Simulation
+A guided, interactive 10-step demonstration illustrating the end-to-end operation of AquaSentra:
+1. Virtual sensors collect water-quality readings (pH, turbidity, TDS, temperature).
+2. ESP32 packages telemetry into JSON and dispatches over simulated Wi-Fi (HTTPS POST).
+3. Backend validates schema, checks freshness, and stores canonical records in MongoDB.
+4. Rule-based classification evaluates readings against provisional reference ranges.
+5. Trained XGBoost model calculates anomaly probability score.
+6. Persistence counters track repeated abnormalities over consecutive cycles ($K$ counter).
+7. System issues bounded repeat confirmation request ($C$) for a fresh reading.
+8. If authorized under Option A logic, virtual relay de-energizes fail-safe coil.
+9. Acknowledgment and independent simulated verification are shown separately.
+10. Web dashboard updates live metrics, incident alarms, and auditable control journal.
+
+**Supported Scenarios**:
+- `Normal Household Operation`: Steady clean water, valve verified open, continuous flow animation.
+- `Risky / Degraded Water`: Elevated turbidity (6.85 NTU), early warning logged, valve remains open.
+- `Critical Anomaly & Virtual Isolation`: Severe contamination (pH 11.45, TDS 980 mg/L), persistence triggered, confirmation verified, valve verified closed, water flow halts.
+- `Valve Fault: No Acknowledgment (no_ack)`: Relay fails to respond, fault logged, valve remains unverified.
+- `Valve Fault: Mechanical Stuck Valve (stuck)`: Relay acknowledges command, but limit switch reports valve plunger remains stuck open. Falsely marking verified closed is strictly prevented.
+- `Valve Fault: Switch Feedback Timeout (no_feedback)`: Limit switch fails to signal before timeout expires.
+- `Recovery & Authorized Supply Restoration`: Telemetry returns to Normal, certified administrator signs off, virtual restore commanded, holdoff observed, clean flow resumes.
+
+### Page 3: Component Library
+Showcases all **9 hardware components individually in isolated 3D views**, rather than a combined assembly:
+1. **ESP32 DevKit V1 / ESP32-WROOM-32**: Dual-core MCU, Wi-Fi/BLE, ADC1 channels, GPIO assignments.
+2. **PH-4502C Sensor Module & E201 Electrode**: Combination glass bulb probe, BNC interface, analog scaling.
+3. **SEN0189 Turbidity Sensor & Fork Probe**: Optical infrared transmittance sensor, inverted response curve.
+4. **TDS Meter V1.0 & Titanium Probe**: AC excitation conductivity probe, dual titanium pins.
+5. **DS18B20 Waterproof Stainless Probe**: Digital 1-Wire temperature capsule, mandatory 4.7 kΩ pull-up.
+6. **5 V Single-Channel Relay Module**: Blue Songle SRD-05VDC-SL-C relay, optocoupler isolation.
+7. **12 V Normally Closed Solenoid Valve**: Brass valve body, fail-closed spring, position limit switch.
+8. **12 V Power Supply & DC-DC Buck Converter**: Ventilated aluminum PSU, LM2596 buck converter, 2A fuse.
+9. **Inline Water Flow Chamber & Frame**: CNC acrylic test manifold, probe ports, tubing, clamps.
+
+Each component detail card provides:
+- Component name, category, and operating voltage.
+- Component purpose and role in AquaSentra.
+- Proposed wiring connections and pin assignments.
+- Technical specifications table.
+- Approximate model notes and unverified electrical assumptions.
+
+---
+
+## 6. Panel Demonstration Guide
+
+Follow this sequence to demonstrate the separated applications:
+
+### Step 1: Start Services
+```powershell
+powershell -ExecutionPolicy Bypass -File .\Start-Demo.ps1
+```
+Open both URLs in your browser:
+- Main Dashboard: `http://127.0.0.1:4173`
+- Standalone 3D Lab: `http://127.0.0.1:4174`
+
+### Step 2: Sign in to Main Dashboard
+1. Log in with `research-viewer` and the viewer access token from `backend/.env`.
+2. Observe the Overview page: pH, turbidity, TDS, temperature, and Normal classification.
+3. Note the sidebar navigation: Verify that the 3D explorer is no longer embedded in the menu. Click the **AquaSentra 3D Lab ↗** external link card to open the 3D Lab.
+4. Browse through **Readings & History**, **Alerts**, **Detection**, **Valve Control**, and **Settings**.
+
+### Step 3: Explore Standalone 3D Lab
+1. Go to **1. Complete Device**:
+   - Orbit around the 3D model (left-click + drag), pan (right-click), and zoom (scroll).
+   - Click the **Exploded View** button to separate internal modules.
+   - Switch wiring filters: `GPIO Signals`, `Power Rails`, `Probe Leads`, `All Wires`, `Hide Wiring`.
+   - Click the **Wiring Netlist Docs** button to review the 33 mapped connections.
+   - Click components in 3D (e.g. the blue relay or brass valve) to view details in the inspector drawer.
+2. Go to **2. IoT Operation Simulation**:
+   - Select the `Critical Anomaly & Virtual Isolation` scenario.
+   - Click **Next** through steps 1 to 10 to demonstrate the full sequence from sensing, Wi-Fi dispatch, rule evaluation, XGBoost inference, persistence counting, confirmation request, relay actuation, to verified closure.
+   - Switch to the `Valve Fault: Mechanical Stuck Valve (stuck)` scenario to demonstrate that an acknowledged electrical command is **never** falsely depicted as verified closure.
+3. Go to **3. Component Library**:
+   - Click through all 9 individual components in the sidebar.
+   - Observe each standalone 3D model rendered in isolation with orbit controls.
+   - Review the required voltages (3.3V, 5V, 12V), proposed pin routes, and unverified assumptions.
+
+### Step 4: Run Live Isolation Simulator
+In a separate terminal, trigger live virtual isolation and fault scenarios against the running backend:
+```powershell
+# Standard isolation & restoration walkthrough:
 python simulator/demo.py
+
+# Relay fails to acknowledge:
 python simulator/demo.py --fault no_ack
+
+# Relay acknowledges, but valve plunger sticks open:
 python simulator/demo.py --fault stuck
+
+# Switch feedback fails to report before timeout:
 python simulator/demo.py --fault no_feedback
+
+# Authorized administrator restoration:
 python simulator/demo.py --restore
 ```
+Watch the state synchronize across both frontend applications in real time.
 
-Each scenario restores the virtual supply after a Normal reading and inspection acknowledgment,
-waits for holdoff, then demonstrates confirmation and virtual isolation. The launcher uses built
-preview because this sandbox denies esbuild development pre-bundling in ancestor directories.
-On an unrestricted local machine the original Vite development workflow is also available.
+---
 
-## Implemented stages
+## 7. Verification & Automated Test Results
 
-| Stage | Implemented behavior |
-|---|---|
-| 1 | Preserved schema, authenticated HTTPS ingestion, invalid/duplicate handling and MongoDB storage |
-| 2 | React PWA, configurable rule ratings, history charts, contact status and alerts; five-second polling |
-| 3 | Trained XGBoost, FastAPI inference, stored scores/classes/versions; reproducible synthetic evaluation |
-| 4 | Option A default / configurable B, persistence, bounded repeat confirmation, recovery, ordering and expiry |
-| 5 | Durable virtual command journal, distinct acknowledgment/position states, restoration, holdoff and faults |
-| 6 | Stored mock explanations and unavailable fallback; no connection from text to control |
-| 7 | Automated unit/integration/browser checks, virtual-only ESP32 firmware, diagrams and panel script |
-
-The firmware is a future transport starting point with synthetic readings, not calibrated physical
-sensor drivers or a physical actuator implementation. No hardware was flashed or tested.
-
-## Configuration and research validity
-
-`backend/config/parameters.json` contains provisional Normal/Risky/Critical bands.
-`backend/config/control.json` contains provisional counts, timings and option A/B.
-Restart after edits and increment the configuration version. Prior readings retain their versions.
-The original paper leaves several decisions open; the chosen defaults are documented in
-[the architecture and decision table](docs/stage7-architecture.md).
-
-Train/reproduce using `.venv\Scripts\python.exe ml/train.py`.
-The generated CSV has 4,800 labeled synthetic rows, grouped into 300 episodes. Chronological
-train/validation/test partitions contain 180/60/60 complete episodes. The final 960 test rows
-are excluded from model and threshold selection. Current-only features use window length 1.
-See [actual metrics](ml/artifacts/metrics.json) and [observed results](docs/observed-results.md).
-Perfect synthetic scores are evidence of generator separability, not real-world validity.
-
-## Tests
+Run all test suites to verify system integrity:
 
 ```powershell
+# 1. Backend tests (73 unit & integration tests)
 cd backend
 npm test
-$env:PORT='8444'
-npm run test:smoke
-npm run test:stage2-smoke
+
+# 2. Python ML tests (8 test cases)
 cd ..
-.venv\Scripts\python.exe -m unittest ml.test_ml -v
-python -m unittest discover -s simulator -p 'test_*.py' -v
-python simulator/demo.py --suite
+.\.venv\Scripts\python.exe -m unittest ml.test_ml -v
+
+# 3. Simulator tests (6 test cases)
+.\.venv\Scripts\python.exe -m unittest discover -s simulator -p "test_*.py" -v
+
+# 4. Frontend tests (9 3D state tests + 5 netlist tests)
 cd frontend
-npm run build
-npx playwright install chromium
-node browser-test.mjs
+npm run test:3d
+node --test tests/wiringNetlist.test.mjs
+
+# 5. Device Lab tests (7 component library & scenario tests)
+cd ../device-lab
+npm test
+
+# 6. Complete End-to-End Playwright Browser & Simulation Suite
+cd ..
+powershell -ExecutionPolicy Bypass -File .\test-e2e.ps1
 ```
 
-Run live suites sequentially because they use the same demo device. Browser tests use the built
-preview at port 4173 and check desktop/mobile rendering, login, history, explanations, permissions,
-credential storage and refresh behavior. If using a custom Playwright browser cache, set
-`PLAYWRIGHT_BROWSERS_PATH` consistently for installation and execution.
+### Verified Test Summary:
+- **Backend Tests**: 73 / 73 passed (0 failures).
+- **ML Inference Tests**: 8 / 8 passed (0 failures).
+- **Simulator Tests**: 6 / 6 passed (0 failures).
+- **Frontend 3D State Tests**: 9 / 9 passed (0 failures).
+- **Wiring Netlist Tests**: 5 / 5 passed (0 failures).
+- **Device Lab Component & Simulation Tests**: 7 / 7 passed (0 failures).
+- **End-to-End Browser Checks**: 29 / 29 checks passed (Main Dashboard desktop/mobile, permissions, AI explanations, navigation, 3D Lab assembly, IoT simulation, and 9 component library cards).
+- **Live Simulator Integration Suite**: 12 / 12 checks passed (Virtual closure, invalid handling, fault injection, authorization barriers).
 
-Firmware compile: install PlatformIO, then `python -m platformio run -d firmware`.
-Use `firmware/include/config.example.h` as the private configuration template. Virtual-only mode
-is enforced at compile time and no GPIO output is enabled.
+---
 
-## Documentation
+## 8. Research Prototype Limitations & Safety Disclaimers
 
-- [Observed test results and limitations](docs/observed-results.md)
-- [Architecture and decision-flow diagrams](docs/stage7-architecture.md)
-- [Proposed wiring diagram and firmware scope](docs/wiring-plan.md)
-- [Panel demonstration script](docs/panel-demonstration.md)
-- [Model report](ml/artifacts/metrics.json)
-
-Earlier stage documents are historical records, not the current implementation status.
-The ZIP contains no .env, credentials, certificates, database data, dependencies or Stage 1 backup.
-When merging source into an existing installation, preserve those local items and select the
-intended MongoDB database explicitly. This is a single-process localhost demonstration, not a
-production deployment; no multi-instance transaction guarantees, calibrated hardware, laboratory
-validation, real-world ML validation, household user evaluation or certified safety claim is made.
+1. **Software Simulation Only**: Physical sensors, relay coil contacts, 12 V solenoid valve, and limit switches are entirely simulated. No physical actuator is connected to mains water.
+2. **Potability Disclaimer**: A Normal rule rating indicates only that simulated pH, turbidity, and TDS readings fall within provisional study reference bands. It does not certify drinking water potability.
+3. **Electrical Wiring Caution**: The 3D wiring netlist represents proposed pin assignments for selected DevKit board layouts. Always verify voltage scaling (0–5V sensor outputs must not connect directly to 3.3V ESP32 ADC inputs) and pinouts on actual purchased hardware.
+4. **Credential Security**: Access tokens are held exclusively in browser tab memory and cleared upon page reload. Never commit or share secrets from `backend/.env`.

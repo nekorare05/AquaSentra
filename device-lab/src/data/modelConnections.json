@@ -1,0 +1,246 @@
+{
+  "status": "UNVERIFIED schematic concept; no live physical IO",
+  "pin_assignments": {
+    "pH": "ADC1 GPIO34 (through analog voltage scaling)",
+    "Turbidity": "ADC1 GPIO35 (through analog voltage scaling)",
+    "TDS": "ADC1 GPIO32 (module output must be proven <= ADC tolerance)",
+    "Temperature DQ": "GPIO4 with external 4.7 k\u03a9 pull-up to 3.3V",
+    "Relay IN": "GPIO26 (virtual-only; active polarity and boot state untested)",
+    "Independent switch": "GPIO27 (virtual-only, pull-up and debouncing unverified)",
+    "Solenoid +": "PSU fused +12 V -> relay NO -> valve +",
+    "Solenoid return": "valve - -> PSU return; never from GPIO"
+  },
+  "connections": [
+    {
+      "id": "psu_to_buck_plus",
+      "source": "PSU +12V",
+      "destination": "buck converter VIN+",
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "psu_to_buck_ground",
+      "source": "PSU 0V",
+      "destination": "buck converter VIN-",
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "fivev_to_esp32",
+      "source": "buck regulated +5V",
+      "destination": "ESP32 VIN5V",
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "ground_to_esp32",
+      "source": "buck ground",
+      "destination": "ESP32 GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "supply_ph",
+      "source": "buck +5V",
+      "destination": "ph module VCC",
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "ground_ph",
+      "source": "buck GND",
+      "destination": "ph module GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "supply_turb",
+      "source": "buck +5V",
+      "destination": "turb module VCC",
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "ground_turb",
+      "source": "buck GND",
+      "destination": "turb module GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "supply_tds",
+      "source": "buck +5V",
+      "destination": "tds module VCC",
+      "domain": "5V",
+      "note": "TDS module accepts 3.3\u20135.5V on verified DFRobot SEN0244; module variant must be checked."
+    },
+    {
+      "id": "ground_tds",
+      "source": "buck GND",
+      "destination": "tds module GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "ph_to_divider",
+      "source": "PH-4502C analog PO",
+      "destination": "pH ADC voltage scaler input",
+      "domain": "signal",
+      "note": "Analog output must be limited to ESP32 ADC voltage range."
+    },
+    {
+      "id": "ph_div_to_gpio34",
+      "source": "pH scaler output",
+      "destination": "ESP32 GPIO34 / ADC1_CH6",
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "ph_scaler_ground",
+      "source": "pH scaler GND",
+      "destination": "common GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "turb_to_divider",
+      "source": "SEN0189 analog A",
+      "destination": "turbidity ADC voltage scaler input",
+      "domain": "signal",
+      "note": "SEN0189 analog output can exceed 3.3V."
+    },
+    {
+      "id": "turb_div_to_gpio35",
+      "source": "turbidity scaler output",
+      "destination": "ESP32 GPIO35 / ADC1_CH7",
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "turb_scaler_ground",
+      "source": "turbidity scaler GND",
+      "destination": "common GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "tds_to_gpio32",
+      "source": "TDS Meter V1.0 analog",
+      "destination": "ESP32 GPIO32 / ADC1_CH4",
+      "domain": "signal",
+      "note": "Assumes verified TDS module output <= ESP32 ADC max; measure actual output before building."
+    },
+    {
+      "id": "temperature_data",
+      "source": "DS18B20 DQ",
+      "destination": "ESP32 GPIO4",
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "temperature_supply",
+      "source": "ESP32 3V3",
+      "destination": "DS18B20 VDD",
+      "domain": "3V3",
+      "note": ""
+    },
+    {
+      "id": "temperature_ground",
+      "source": "ESP32 GND",
+      "destination": "DS18B20 GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "temperature_pullup",
+      "source": "DS18B20 DQ",
+      "destination": "4.7k resistor to ESP32 3V3",
+      "domain": "3V3",
+      "note": "Conceptual 4.7k data pull-up. Verify physical module has no existing pull-up."
+    },
+    {
+      "id": "relay_gpio26",
+      "source": "ESP32 GPIO26",
+      "destination": "relay module IN",
+      "domain": "signal",
+      "note": ""
+    },
+    {
+      "id": "relay_5v",
+      "source": "buck +5V",
+      "destination": "relay module VCC",
+      "domain": "5V",
+      "note": ""
+    },
+    {
+      "id": "relay_ground",
+      "source": "buck common GND",
+      "destination": "relay module GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "fused_12v",
+      "source": "PSU +12V",
+      "destination": "inline 12V fuse input",
+      "domain": "12V",
+      "note": "Illustrative fuse; rating requires selected valve and power supply specifications."
+    },
+    {
+      "id": "fused_12v_to_relay_com",
+      "source": "inline fuse output",
+      "destination": "relay dry contact COM",
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "relay_no_to_valve",
+      "source": "relay dry contact NO",
+      "destination": "valve coil +12V",
+      "domain": "12V",
+      "note": "Contact energizes to open. Default NO open must cut power."
+    },
+    {
+      "id": "valve_to_12v_return",
+      "source": "valve coil 0V",
+      "destination": "PSU 0V",
+      "domain": "12V",
+      "note": ""
+    },
+    {
+      "id": "feedback_gpio27",
+      "source": "independent valve-position switch",
+      "destination": "ESP32 GPIO27",
+      "domain": "feedback",
+      "note": "Switch is a concept only. GPIO27 digital input needs verified bias and debouncing."
+    },
+    {
+      "id": "feedback_ground",
+      "source": "independent valve-position switch",
+      "destination": "ESP32 GND",
+      "domain": "GND",
+      "note": ""
+    },
+    {
+      "id": "ph_probe_to_bnc",
+      "source": "E201 pH electrode BNC cable",
+      "destination": "PH-4502C BNC socket",
+      "domain": "probe",
+      "note": ""
+    },
+    {
+      "id": "turb_probe_to_board",
+      "source": "SEN0189 optical probe cable",
+      "destination": "SEN0189 conditioning module",
+      "domain": "probe",
+      "note": ""
+    },
+    {
+      "id": "tds_probe_to_board",
+      "source": "TDS conductivity probe cable",
+      "destination": "TDS Meter board",
+      "domain": "probe",
+      "note": ""
+    }
+  ]
+}
