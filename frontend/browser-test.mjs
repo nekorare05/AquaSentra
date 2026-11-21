@@ -34,6 +34,7 @@ try {
   await page.getByRole('button', { name: 'Connect to dashboard' }).click();
 
   // Overview Page & Integrated Section
+  await page.getByText('Detection details and simulation controls', { exact: true }).click();
   await page.getByRole('heading', { name: 'Detection & virtual isolation' }).waitFor();
   check('Login and integrated detection panel', true);
   check('No obsolete pending-stage labels', !/Stage 3.*pending|Disabled.*Stage 5/.test(await page.locator('body').innerText()));
@@ -111,34 +112,36 @@ try {
   check('Component inspector side panel renders', await page.locator('.assembly-inspector-panel').isVisible());
 
   // Wiring Netlist Docs modal in Complete Device
-  await page.getByRole('button', { name: 'Wiring Netlist Docs' }).click();
+  await page.getByRole('button', { name: 'Wiring reference' }).click();
   await page.waitForSelector('.wiring-modal-content');
   check('Proposed Wiring Netlist reference modal opens', true);
   await page.locator('.modal-header .icon-button').click();
 
   // Page 2: IoT Operation Simulation
-  await page.getByRole('button', { name: '2. IoT Operation Simulation' }).click();
+  await page.getByRole('link', { name: 'IoT simulation' }).click();
   await page.waitForSelector('.simulation-page-layout');
   check('IoT Operation Simulation page loads', true);
   check('All 10 simulation step dots rendered', (await page.locator('.step-dot').count()) === 10);
-  check('Operational scenario chips rendered', (await page.locator('.scenario-chip').count()) >= 5);
+  check('Simulation scenarios available', (await page.locator('#scenario option').count()) >= 5);
 
   // Test Stepper controls
   await page.getByRole('button', { name: 'Next' }).click();
   check('Simulation stepper advances to Step 2', await page.getByText('STEP 2 OF 10').isVisible());
 
   // Page 3: Component Library
-  await page.getByRole('button', { name: '3. Component Library' }).click();
+  await page.getByRole('link', { name: 'Component library' }).click();
   await page.waitForSelector('.component-library-container');
   check('Component Library page loads', true);
   const compButtons = await page.locator('.component-nav-button').count();
   check('Component Library lists 9 individual components', compButtons === 9);
 
   // Inspect individual components (e.g., PH-4502C, Turbidity, Solenoid Valve)
-  await page.getByRole('button', { name: /PH-4502C/ }).click();
+  await page.getByRole('button', { name: 'pH sensor' }).click();
+  await page.getByText('Specifications', { exact: true }).click();
   check('PH-4502C component details render', await page.getByText('0.00 – 14.00 pH').isVisible());
 
-  await page.getByRole('button', { name: /12V NC Solenoid/ }).click();
+  await page.getByRole('button', { name: 'Solenoid valve' }).click();
+  await page.getByText('Specifications', { exact: true }).click();
   check('12V Normally Closed Valve details render', await page.getByText('Normally Closed').first().isVisible());
 
   // Return to Dashboard link

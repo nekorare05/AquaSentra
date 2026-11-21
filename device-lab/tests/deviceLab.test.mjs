@@ -75,3 +75,31 @@ test('Mesh identifier resolution maps real GLB names to component definitions', 
   assert.equal(getComponentByMeshName('power:perforated-housing')?.id, 'power');
   assert.equal(getComponentByMeshName('chamber:water-cell')?.id, 'chamber');
 });
+
+test('Every catalog selection isolates visible, centered geometry from the shipped GLB', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+  const { Box3, Texture, Vector3 } = await import('three');
+  const { isolateComponent, cadName } = await import('../src/data/componentModel.js');
+  const bytes = await readFile(new URL('../public/models/aquasentra-device.glb', import.meta.url));
+  // Geometry and CAD names use the production loader. Node has no image decoder.
+  const loader = new GLTFLoader().register(() => ({
+    name: 'GeometryTestTextures', loadTexture: async () => new Texture()
+  }));
+  const { scene } = await loader.parseAsync(
+    bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength), ''
+  );
+  for (const component of COMPONENTS_DATA) {
+    const model = isolateComponent(scene, component.id);
+    let meshCount = 0;
+    model.traverse(node => {
+      if (!node.isMesh) return;
+      meshCount++;
+      assert.equal(getComponentByMeshName(cadName(node))?.id, component.id);
+    });
+    assert.ok(meshCount > 0, component.id);
+    const box = new Box3().setFromObject(model);
+    assert.ok(box.getCenter(new Vector3()).length() < 1e-5, component.id);
+    assert.ok(Math.abs(box.getSize(new Vector3()).length() - 3.4) < 1e-5, component.id);
+  }
+});

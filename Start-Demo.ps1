@@ -1,4 +1,4 @@
-﻿param(
+param(
   [string]$MongoUri='mongodb://127.0.0.1:27017/aquasentra_stage7_demo',
   [ValidateSet('all','frontend','device-lab','backend')][string]$App='all',
   [switch]$Stop

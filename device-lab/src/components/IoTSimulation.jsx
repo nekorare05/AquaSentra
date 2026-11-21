@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import ViewerBoundary from './ViewerBoundary';
+import { cadName } from '../data/componentModel';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -18,7 +20,8 @@ function Simulation3DScene({ targetMesh, canShowFlow, haze, valveVerified }) {
     const copy = scene.clone(true);
     copy.traverse(o => {
       if (!o.isMesh) return;
-      o.material = o.material?.clone();
+      o.name = cadName(o);
+      o.material = o.material.clone();
       const comp = getComponentByMeshName(o.name);
       o.userData.componentId = comp ? comp.id : null;
       if (['frame', 'water', 'base', 'wire'].includes(o.name.split(':')[0])) {
@@ -87,7 +90,7 @@ function Simulation3DScene({ targetMesh, canShowFlow, haze, valveVerified }) {
 }
 
 export default function IoTSimulation({ backendState }) {
-  const [scenarioId, setScenarioId] = useState('critical');
+  const [scenarioId, setScenarioId] = useState('normal');
   const [currentStep, setCurrentStep] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const controlsRef = useRef();
@@ -127,23 +130,14 @@ export default function IoTSimulation({ backendState }) {
     <div className="simulation-page-layout">
       {/* Scenario Selection Header */}
       <div className="scenario-bar">
-        <div className="scenario-label">SELECT OPERATIONAL SCENARIO:</div>
-        <div className="scenario-chips">
-          {SCENARIOS.map(sc => (
-            <button
-              key={sc.id}
-              className={`scenario-chip ${sc.id === scenarioId ? 'active' : ''}`}
-              onClick={() => {
-                setScenarioId(sc.id);
-                setCurrentStep(1);
-                setIsPlaying(false);
-              }}
-            >
-              <span className="sc-badge">{sc.badge}</span>
-              <span className="sc-name">{sc.name}</span>
-            </button>
-          ))}
-        </div>
+        <label htmlFor="scenario">Simulation scenario</label>
+        <select id="scenario" value={scenarioId} onChange={event => {
+          setScenarioId(event.target.value);
+          setCurrentStep(1);
+          setIsPlaying(false);
+        }}>
+          {SCENARIOS.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
+        </select>
       </div>
 
       {/* Main Content Grid: 3D Visualization + Stepper Controls */}
@@ -164,7 +158,7 @@ export default function IoTSimulation({ backendState }) {
           </div>
 
           <div className="sim-canvas-wrap">
-            <Canvas camera={{ position: [0, 3.2, 5.8], fov: 42 }}>
+            <ViewerBoundary><Canvas camera={{ position: [0, 3.2, 5.8], fov: 42 }}>
               <color attach="background" args={['#0a101d']} />
               <ambientLight intensity={0.7} />
               <directionalLight position={[6, 8, 6]} intensity={1.2} />
@@ -182,11 +176,11 @@ export default function IoTSimulation({ backendState }) {
 
               <gridHelper args={[10, 20, '#1e293b', '#0f172a']} position={[0, -1.8, 0]} />
               <OrbitControls ref={controlsRef} enableDamping dampingFactor={0.06} />
-            </Canvas>
+            </Canvas></ViewerBoundary>
 
             <div className="sim-water-overlay">
-              <span>Fluid state: <strong>{canShowFlow ? 'Active Flow' : 'Halted / Isolated'}</strong></span>
-              <span>Turbidity visual haze: <strong>{scenario.telemetry.turbidity} NTU</strong></span>
+              <span>Simulated flow: <strong>{canShowFlow ? 'Active Flow' : effectiveValveVerified === 'closed' ? 'Stopped' : 'Unverified'}</strong></span>
+              <span>Turbidity: <strong>{scenario.telemetry.turbidity} NTU</strong></span>
             </div>
           </div>
         </div>
@@ -202,7 +196,7 @@ export default function IoTSimulation({ backendState }) {
 
           {/* Detailed Step Activity */}
           <div className="sim-details-card">
-            <h4>Technical Step Activities</h4>
+            <h4>What happens in this step</h4>
             <p>{stepInfo.description}</p>
             {scenario.stepNotes[currentStep] && (
               <div className="scenario-specific-note" style={{ borderLeftColor: scenario.colorTheme }}>

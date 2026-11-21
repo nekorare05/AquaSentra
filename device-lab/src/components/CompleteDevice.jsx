@@ -1,4 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import ViewerBoundary from './ViewerBoundary';
+import { cadName } from '../data/componentModel';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -23,7 +25,8 @@ function DeviceAssembly({
     const copy = scene.clone(true);
     copy.traverse(o => {
       if (!o.isMesh) return;
-      o.material = o.material?.clone();
+      o.name = cadName(o);
+      o.material = o.material.clone();
       o.userData.originalPosition = o.position.clone();
       const comp = getComponentByMeshName(o.name);
       o.userData.componentId = comp ? comp.id : null;
@@ -39,7 +42,7 @@ function DeviceAssembly({
   useEffect(() => {
     model.traverse(o => {
       if (!o.isMesh || !o.material || !o.material.emissive) return;
-      const match = o.userData.componentId === selection;
+      const match = selection && o.userData.componentId === selection;
       o.material.emissive.set(match ? '#0ea5e9' : '#000000');
       o.material.emissiveIntensity = match ? 0.35 : 0;
     });
@@ -131,7 +134,7 @@ export default function CompleteDevice({ backendState }) {
   const [showWiringDoc, setShowWiringDoc] = useState(false);
   const controlsRef = useRef();
 
-  const comp = COMPONENTS_DATA.find(c => c.id === selection) || COMPONENTS_DATA[0];
+  const comp = COMPONENTS_DATA.find(c => c.id === selection);
   const valveVerified = backendState?.valve?.verified || 'unknown';
 
   const resetCamera = () => {
@@ -147,7 +150,7 @@ export default function CompleteDevice({ backendState }) {
         {/* Top Control Toolbar */}
         <div className="assembly-toolbar">
           <div className="toolbar-group">
-            <span className="toolbar-label">VIEW OPTIONS:</span>
+            <span className="toolbar-label">View</span>
             <button
               className={`toolbar-btn ${exploded ? 'active' : ''}`}
               onClick={() => setExploded(!exploded)}
@@ -175,14 +178,14 @@ export default function CompleteDevice({ backendState }) {
           </div>
 
           <div className="toolbar-group">
-            <span className="toolbar-label">WIRING FILTER:</span>
+            <span className="toolbar-label">Wires</span>
             <select
               className="toolbar-select"
               value={wiringMode}
               onChange={e => setWiringMode(e.target.value)}
               aria-label="Filter displayed wire connections"
             >
-              <option value="signals">GPIO Signals & Bus (Default)</option>
+              <option value="signals">Signal wires</option>
               <option value="power">Power & DC Ground Rails</option>
               <option value="probes">Sensor Probe Leads</option>
               <option value="all">All 33 Net Connections</option>
@@ -193,14 +196,14 @@ export default function CompleteDevice({ backendState }) {
               onClick={() => setShowWiringDoc(!showWiringDoc)}
             >
               <FileText size={14}/>
-              <span>Wiring Netlist Docs</span>
+              <span>Wiring reference</span>
             </button>
           </div>
         </div>
 
         {/* 3D Canvas */}
         <div className="assembly-canvas-box">
-          <Canvas
+          <ViewerBoundary><Canvas
             camera={{ position: [0, 3.8, 6.2], fov: 42 }}
             gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
           >
@@ -230,18 +233,18 @@ export default function CompleteDevice({ backendState }) {
               minDistance={2.5}
               maxDistance={18}
             />
-          </Canvas>
+          </Canvas></ViewerBoundary>
 
           <div className="assembly-legend">
-            <span className="legend-chip"><span className="dot teal"/> Click any part in 3D to inspect</span>
-            <span className="legend-chip"><span className="dot amber"/> Blue wire: Signals</span>
-            <span className="legend-chip"><span className="dot red"/> Red/Gold: 12V Actuator</span>
+            <span className="legend-chip"><span className="dot teal"/> Select a component to inspect it</span>
+            <span className="legend-chip"><span className="dot signal"/> Signal wire</span>
+            <span className="legend-chip"><span className="dot red"/> 12 V actuator</span>
           </div>
         </div>
       </div>
 
       {/* Component Inspector Side Panel */}
-      <div className="assembly-inspector-panel">
+      {comp && <div className="assembly-inspector-panel">
         <div className="inspector-header">
           <div>
             <div className="eyebrow-chip">{comp.category}</div>
@@ -285,7 +288,7 @@ export default function CompleteDevice({ backendState }) {
             <p>{comp.assumptionsAndWarnings[0]}</p>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Slide-over or Modal: Proposed Wiring Documentation */}
       {showWiringDoc && (
@@ -294,9 +297,9 @@ export default function CompleteDevice({ backendState }) {
             <div className="modal-header">
               <div>
                 <h2>Proposed Wiring & Netlist Reference</h2>
-                <p>33 explicitly mapped connections from proposed-netlist.json and Stage 7 architecture.</p>
+                <p>Follow each connection from its source to its destination.</p>
               </div>
-              <button className="icon-button" onClick={() => setShowWiringDoc(false)}><X size={18}/></button>
+              <button className="icon-button" aria-label="Close wiring reference" onClick={() => setShowWiringDoc(false)}><X size={18}/></button>
             </div>
 
             <div className="modal-body">

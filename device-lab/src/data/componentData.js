@@ -7,6 +7,8 @@
 export const COMPONENTS_DATA = [
   {
     id: 'esp32',
+    label: 'ESP32 controller',
+    summary: 'Reads the four water sensors and sends their measurements to the dashboard over Wi-Fi.',
     name: 'ESP32 DevKit V1 / ESP32-WROOM-32',
     shortName: 'ESP32 DevKit',
     category: 'Compute & Logic',
@@ -40,6 +42,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'ph',
+    label: 'pH sensor',
+    summary: 'The glass electrode measures acidity. Its circuit board converts the probe signal into a reading for the ESP32.',
     name: 'PH-4502C pH Sensor Module & E201 Electrode',
     shortName: 'PH-4502C Module & Probe',
     category: 'Water Quality Sensor',
@@ -70,6 +74,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'turbidity',
+    label: 'Turbidity sensor',
+    summary: 'The fork-shaped probe uses light to detect suspended particles that make the water cloudy.',
     name: 'SEN0189 Turbidity Sensor Module & Fork Probe',
     shortName: 'SEN0189 Turbidity',
     category: 'Water Quality Sensor',
@@ -99,6 +105,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'tds',
+    label: 'Dissolved solids sensor',
+    summary: 'The two electrodes measure conductivity, which the system uses to estimate dissolved solids.',
     name: 'TDS Meter V1.0 & Titanium Probe',
     shortName: 'TDS Meter V1.0',
     category: 'Water Quality Sensor',
@@ -127,6 +135,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'temperature',
+    label: 'Temperature probe',
+    summary: 'The sealed metal probe measures the water temperature inside the sampling chamber.',
     name: 'DS18B20 Waterproof Stainless Probe',
     shortName: 'DS18B20 Temp Probe',
     category: 'Operational Telemetry',
@@ -155,6 +165,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'relay',
+    label: 'Relay module',
+    summary: 'The relay represents the switch between the ESP32 control signal and the valve power circuit.',
     name: '5 V Single-Channel Relay Module',
     shortName: '5V Relay Module',
     category: 'Virtual Actuator Interface',
@@ -184,6 +196,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'valve',
+    label: 'Solenoid valve',
+    summary: 'This valve illustrates where the prototype simulates opening or closing the water supply.',
     name: '12 V Normally Closed Solenoid Valve',
     shortName: '12V NC Solenoid Valve',
     category: 'Hydraulic Actuator',
@@ -214,6 +228,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'power',
+    label: 'Power supply and regulator',
+    summary: 'The supply and converter represent the separate voltage levels used by the controller, sensors and valve.',
     name: '12 V Power Supply & DC-DC Buck Converter',
     shortName: 'Power & Regulation',
     category: 'Power Infrastructure',
@@ -241,6 +257,8 @@ export const COMPONENTS_DATA = [
   },
   {
     id: 'chamber',
+    label: 'Flow chamber and frame',
+    summary: 'The clear chamber holds the probes in the water path. The frame supports the chamber and electronics.',
     name: 'Inline Water Flow Chamber, Tubing & Mounting Frame',
     shortName: 'Hydraulic Chamber & Frame',
     category: 'Hydraulic Manifold',

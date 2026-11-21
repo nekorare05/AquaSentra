@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, PlayCircle, Layers, ArrowLeft, RefreshCw, Wifi, WifiOff,
-  Activity, ShieldCheck, CheckCircle2
+  Box, PlayCircle, Layers, ArrowLeft, Wifi, WifiOff
 } from 'lucide-react';
 import CompleteDevice from './components/CompleteDevice';
 import IoTSimulation from './components/IoTSimulation';
@@ -10,11 +9,25 @@ import { apiGet } from './api';
 
 const MAIN_DASHBOARD_URL = window.location.port === '4174' ? 'http://127.0.0.1:4173' : 'http://127.0.0.1:5173';
 
+const views = [
+  { id: 'complete', label: 'Device assembly', icon: Box },
+  { id: 'simulation', label: 'IoT simulation', icon: PlayCircle },
+  { id: 'components', label: 'Component library', icon: Layers }
+];
+
+function currentView() {
+  return views.find(view => view.id === window.location.hash.slice(1))?.id || 'complete';
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('complete'); // 'complete', 'simulation', 'components'
+  const [activeTab, setActiveTab] = useState(currentView);
   const [backendState, setBackendState] = useState(null);
   const [backendConnected, setBackendConnected] = useState(false);
-  const [deviceId, setDeviceId] = useState('');
+  useEffect(() => {
+    const navigate = () => setActiveTab(currentView());
+    window.addEventListener('hashchange', navigate);
+    return () => window.removeEventListener('hashchange', navigate);
+  }, []);
 
   // Attempt background sync with existing Node.js backend if available
   useEffect(() => {
@@ -25,7 +38,6 @@ export default function App() {
         if (active) {
           setBackendState(data);
           setBackendConnected(true);
-          if (data.selected_device_id) setDeviceId(data.selected_device_id);
         }
       } catch {
         if (active) {
@@ -48,40 +60,24 @@ export default function App() {
           </div>
           <div className="lab-title-group">
             <h1>AquaSentra <span>3D Lab</span></h1>
-            <p>Interactive Hardware & Simulation Workstation</p>
           </div>
         </div>
 
         {/* 3 Main View Tabs */}
         <nav className="lab-nav" aria-label="3D Lab Navigation">
-          <button
-            className={`lab-nav-item ${activeTab === 'complete' ? 'active' : ''}`}
-            onClick={() => setActiveTab('complete')}
-          >
-            <Box size={16}/>
-            <span>1. Complete Device</span>
-          </button>
-          <button
-            className={`lab-nav-item ${activeTab === 'simulation' ? 'active' : ''}`}
-            onClick={() => setActiveTab('simulation')}
-          >
-            <PlayCircle size={16}/>
-            <span>2. IoT Operation Simulation</span>
-          </button>
-          <button
-            className={`lab-nav-item ${activeTab === 'components' ? 'active' : ''}`}
-            onClick={() => setActiveTab('components')}
-          >
-            <Layers size={16}/>
-            <span>3. Component Library</span>
-          </button>
+          {views.map(({ id, label, icon: Icon }) => (
+            <a key={id} href={`#${id}`} className={`lab-nav-item ${activeTab === id ? 'active' : ''}`}
+              aria-current={activeTab === id ? 'page' : undefined}>
+              <Icon size={16}/>{label}
+            </a>
+          ))}
         </nav>
 
         {/* External Return Link & Backend Sync Pill */}
         <div className="lab-header-actions">
           <div className={`status-pill ${backendConnected ? 'online' : 'offline'}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: backendConnected ? 'var(--green)' : 'var(--text-light)' }}>
             {backendConnected ? <Wifi size={13}/> : <WifiOff size={13}/>}
-            <span>{backendConnected ? 'Backend Synced' : 'Standalone Mode'}</span>
+            <span>{backendConnected ? 'Connected' : 'Standalone'}</span>
           </div>
 
           <a
@@ -90,7 +86,7 @@ export default function App() {
             title="Return to the Main AquaSentra Monitoring Dashboard"
           >
             <ArrowLeft size={14}/>
-            <span>Main Dashboard</span>
+            <span>Dashboard</span>
           </a>
         </div>
       </header>

@@ -56,10 +56,6 @@ function RatingPill({ rating, prefix = '' }) {
   return <span className={`rating-pill ${ratingClass(r)}`}><span className="pill-dot"/>{prefix}{r || 'Not rated'}</span>;
 }
 
-function SectionHeading({ eyebrow, title, detail, action }) {
-  return <div className="section-heading"><div><div className="eyebrow">{eyebrow}</div><h2>{title}</h2>{detail && <p>{detail}</p>}</div>{action}</div>;
-}
-
 function Empty({ icon: Icon = Database, title, message }) {
   return <div className="empty"><Icon size={28} strokeWidth={1.5}/><h3>{title}</h3><p>{message}</p></div>;
 }
@@ -71,11 +67,10 @@ function LiveIcon({ status }) {
 function MiniMetric({ field, reading, rating, selected, onClick }) {
   const Icon = field.icon;
   const v = reading?.payload?.[field.key];
-  return <button type="button" className={`metric-card tint-${field.tint} ${selected ? 'metric-selected' : ''}`} onClick={onClick}>
+  return <button type="button" className={`metric-card tint-${field.tint} ${selected ? 'metric-selected' : ''}`} onClick={onClick} aria-pressed={selected}>
     <div className="metric-top"><span className="metric-icon"><Icon size={18}/></span><span className="metric-trend">{field.key === 'temperature_c' ? 'Operational' : (rating?.[field.key] || 'Awaiting data')}</span></div>
     <div className="metric-title">{field.title}</div>
     <div className="metric-value">{num(v, field.decimals)} <span>{field.unit}</span></div>
-    <div className="metric-bottom"><span className="metric-dot"/>{reading ? 'Latest valid record' : 'No eligible record'}</div>
   </button>;
 }
 
@@ -107,9 +102,8 @@ function Connect({ onConnect, busy, error }) {
   return <div className="login-outer">
     <div className="login-card">
       <div className="login-logo"><span className="brand-mark"><Droplets size={22}/></span><span>Aqua<span>Sentra</span></span></div>
-      <div className="eyebrow">HOUSEHOLD WATER MONITORING</div>
-      <h1>Sign in to dashboard</h1>
-      <p className="login-description">Connect to your AquaSentra local API gateway to view water-quality metrics, provisional ratings, and alerts.</p>
+      <h1>Water monitoring</h1>
+      <p className="login-description">Sign in to see sensor readings, review alerts and track changes in water quality.</p>
       <form onSubmit={e => { e.preventDefault(); if (id.trim() && token) onConnect({ id: id.trim(), token }); }}>
         <label htmlFor="account-id">User ID</label>
         <input id="account-id" autoComplete="username" value={id} maxLength={64} onChange={e => setId(e.target.value)} placeholder="research-viewer or research-admin" required/>
@@ -118,7 +112,8 @@ function Connect({ onConnect, busy, error }) {
         {error && <div className="form-error" role="alert"><AlertCircle size={15}/>{error}</div>}
         <button className="primary-button login-button" type="submit" disabled={busy}>{busy ? 'Connecting…' : 'Connect to dashboard'} <ArrowUpRight size={16}/></button>
       </form>
-      <div className="login-note"><LockKeyhole size={14}/> Session access token is kept in tab memory only; never written to persistent local storage.</div>
+      <div className="login-note"><LockKeyhole size={14}/> Your access token stays in this tab until you close or reload it.</div>
+      <a className="login-lab-link" href={`${LAB_URL}/#components`}>Explore the 3D component library <ArrowUpRight size={16}/></a>
     </div>
     <footer className="login-footer">AquaSentra Research Prototype · Stages 1–7 · Not a certified drinking-water safety device</footer>
   </div>;
@@ -260,49 +255,32 @@ function OverviewPage({ summary, readings, alerts, params, selectedMetric, onMet
   const selected = FIELDS.find(f => f.key === selectedMetric) || FIELDS[0];
   const latest = summary?.latest_live_valid_reading;
   const status = summary?.device_status || 'never_seen';
-  const color = ratingClass(latest?.rule_rating);
+  const rating = safeRating(latest?.rule_rating);
+  const ratingMessage = {
+    Normal: 'The measured indicators are within the study ranges.',
+    Risky: 'At least one indicator has reached the early-warning range.',
+    Critical: 'At least one indicator has crossed a critical threshold.'
+  };
 
   return <>
-    <div className="overview-top-grid">
-      <div className="status-card">
-        <div className="status-card-header">
-          <span>MONITORING DEVICE</span>
-          <span className={`status-badge ${status}`}><LiveIcon status={status}/> {status === 'online' ? 'Online' : status === 'offline' ? 'Offline' : 'Never Seen'}</span>
-        </div>
-        <h2 style={{ fontSize: '20px', margin: '4px 0 6px', color: 'var(--text-main)' }}>{summary?.selected_device_id || 'No Device Connected'}</h2>
-        <p style={{ fontSize: '12px', color: 'var(--text-light)', margin: '0 0 16px' }}>Virtual ESP32 DevKit · Stages 1–7 local prototype</p>
-        <div style={{ display: 'flex', gap: '16px', fontSize: '11px', color: 'var(--text-light)', borderTop: '1px solid var(--border-light)', paddingTop: '12px', marginTop: 'auto' }}>
-          <span><Clock3 size={13} style={{ verticalAlign: 'middle', marginRight: '4px' }}/> Last contact: {dt(summary?.devices?.find(d => d.device_id === summary.selected_device_id)?.last_seen_at)}</span>
-          <span>Parameter set: <strong>{params?.parameter_set_version || '—'}</strong></span>
-        </div>
+    <section className={`water-summary ${ratingClass(rating)}`} aria-label="Latest water assessment">
+      <div className="water-assessment">
+        <h2>Latest water assessment</h2>
+        <RatingPill rating={rating}/>
+        <p>{ratingMessage[rating] || 'Waiting for a valid, rated sensor reading.'}</p>
+        <small>Study thresholds for pH, turbidity and dissolved solids. Drinking-water safety requires laboratory testing.</small>
       </div>
-
-      <div className={`status-card`} style={{ borderLeft: `4px solid ${color === 'normal' ? 'var(--normal-badge)' : color === 'risky' ? 'var(--risky-badge)' : color === 'critical' ? 'var(--critical-badge)' : 'var(--border-strong)'}` }}>
-        <div className="status-card-header">
-          <span>OVERALL CLASSIFICATION</span>
-          <ShieldCheck size={18} style={{ color: 'var(--teal)' }}/>
-        </div>
-        <div className="classification-box">
-          <RatingPill rating={latest?.rule_rating}/>
-          <div className="classification-text">
-            <h2>{!latest ? 'Awaiting Data' : latest.rule_rating === 'Normal' ? 'Normal Quality' : latest.rule_rating === 'Risky' ? 'Risky Quality (Warning)' : 'Critical Anomaly Detected'}</h2>
-            <p>{!latest ? 'Start the simulator to ingest records' : latest.rule_rating === 'Normal' ? 'All measured indicators are within provisional study ranges.' : latest.rule_rating === 'Risky' ? 'One or more indicators entered the early-warning band.' : 'One or more indicators exceeded safe study thresholds.'}</p>
-          </div>
-        </div>
-        <p style={{ fontSize: '11px', color: 'var(--text-light)', margin: 'auto 0 0', borderTop: '1px solid var(--border-light)', paddingTop: '10px' }}>
-          Based on pH, turbidity, and TDS. A Normal rating does <strong>not</strong> certify water potability.
-        </p>
+      <div className="water-device">
+        <span>Monitoring device</span>
+        <strong>{summary?.selected_device_id || 'No device selected'}</strong>
+        <span><LiveIcon status={status}/> {status === 'online' ? 'Online' : status === 'offline' ? 'Offline' : 'No contact yet'}</span>
+        <small>Last contact · {dt(summary?.devices?.find(d => d.device_id === summary.selected_device_id)?.last_seen_at)}</small>
       </div>
+    </section>
+    <div className="readings-heading">
+      <div><h2>Sensor readings</h2><p>Select a measurement to see its trend.</p></div>
+      <small>{latest && dt(latest.measured_at)}</small>
     </div>
-
-    <div className="section-title-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-      <div>
-        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Water Quality Indicators</h3>
-        <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-light)' }}>Most recent valid measurement</p>
-      </div>
-      <span className="subtle-time" style={{ fontSize: '11px', color: 'var(--text-light)' }}><Clock3 size={13}/> {dt(latest?.measured_at)}</span>
-    </div>
-
     <div className="metric-grid">
       {FIELDS.map(field => <MiniMetric key={field.key} field={field} reading={latest} rating={latest?.rule_details?.individual} selected={selectedMetric === field.key} onClick={() => onMetric(field.key)}/>)}
     </div>
@@ -312,7 +290,7 @@ function OverviewPage({ summary, readings, alerts, params, selectedMetric, onMet
         <div className="panel-header">
           <div>
             <h3>Measurement Trend</h3>
-            <p>Valid records only · {selected.title}</p>
+            <p>Valid readings · {selected.title}</p>
           </div>
           <select className="compact-select" aria-label="Chart parameter" value={selectedMetric} onChange={e => onMetric(e.target.value)}>
             {FIELDS.map(f => <option key={f.key} value={f.key}>{f.title}</option>)}
@@ -326,16 +304,16 @@ function OverviewPage({ summary, readings, alerts, params, selectedMetric, onMet
         <div className="panel-header">
           <div>
             <h3>System Status</h3>
-            <p>Current architecture states</p>
+            <p>Device, model and valve</p>
           </div>
           <Activity size={18} className="header-icon"/>
         </div>
         <div className="status-list">
-          <div><span><Radio size={15}/> Telemetry Acquisition</span><strong className={status === 'online' ? 'good-text' : 'muted-text'}>{status === 'online' ? 'Recent contact' : 'No contact'}</strong></div>
-          <div><span><ShieldCheck size={15}/> Rules Engine</span><strong className="good-text">Active (Provisional)</strong></div>
-          <div><span><Activity size={15}/> XGBoost Inference</span><strong className="muted-text">{summary?.model?.class || summary?.model?.status || 'Awaiting data'}</strong></div>
-          <div><span><ZapOff size={15}/> Virtual Isolation</span><strong className={summary?.valve?.verified === 'closed' ? 'warn-text' : 'muted-text'}>{summary?.valve?.verified || 'Virtual / Unknown'}</strong></div>
-          <div><span><Droplets size={15}/> Fluid Flow</span><strong className="muted-text">Unknown (No Flow Meter)</strong></div>
+          <div><span><Radio size={15}/> Sensor connection</span><strong className={status === 'online' ? 'good-text' : 'muted-text'}>{status === 'online' ? 'Recent contact' : 'No contact'}</strong></div>
+          <div><span><ShieldCheck size={15}/> Threshold checks</span><strong className="good-text">Study ranges</strong></div>
+          <div><span><Activity size={15}/> Anomaly detection</span><strong className="muted-text">{summary?.model?.class || summary?.model?.status || 'Awaiting data'}</strong></div>
+          <div><span><ZapOff size={15}/> Simulated valve</span><strong className={summary?.valve?.verified === 'closed' ? 'warn-text' : 'muted-text'}>{summary?.valve?.verified || 'Virtual / Unknown'}</strong></div>
+          <div><span><Droplets size={15}/> Water flow</span><strong className="muted-text">Unknown (No Flow Meter)</strong></div>
         </div>
         <div className="status-note"><CircleHelp size={16}/> Virtual valve acknowledgment and simulated position feedback are separate. Physical fluid flow remains unmeasured.</div>
       </div>
@@ -357,19 +335,21 @@ function OverviewPage({ summary, readings, alerts, params, selectedMetric, onMet
         <div className="panel-header">
           <div>
             <h3>Data Quality</h3>
-            <p>Ingestion statistics for current period</p>
+            <p>Recently received sensor readings</p>
           </div>
           <Database size={18} className="header-icon"/>
         </div>
-        <div className="quality-stat"><span>Total Ingested Records</span><strong>{summary?.recent_count ?? 0}</strong></div>
-        <div className="quality-stat"><span>Invalid / Flagged Records</span><strong>{summary?.recent_invalid_count ?? 0}</strong></div>
+        <div className="quality-stat"><span>Readings received</span><strong>{summary?.recent_count ?? 0}</strong></div>
+        <div className="quality-stat"><span>Flagged readings</span><strong>{summary?.recent_invalid_count ?? 0}</strong></div>
         <div className="quality-stat"><span>Risky / Critical Events</span><strong>{(summary?.recent_risky_count ?? 0) + (summary?.recent_critical_count ?? 0)}</strong></div>
         <div className="data-quality-foot"><CheckCircle2 size={14}/> Invalid records are excluded from live rating calculations.</div>
       </div>
     </div>
 
-    {/* Integrated Section on Overview to satisfy Stage 7 automated Playwright tests */}
-    <DetectionAndIsolationSection summary={summary} credentials={credentials}/>
+    <details className="advanced-monitoring">
+      <summary>Detection details and simulation controls</summary>
+      <DetectionAndIsolationSection summary={summary} credentials={credentials}/>
+    </details>
   </>;
 }
 
@@ -380,7 +360,7 @@ function HistoryPage({ readings, params, selectedMetric, onMetric, period, setPe
   const rows = onlyFaults ? readings.filter(r => !r.validity?.is_valid || r.rule_rating === 'Critical' || r.rule_rating === 'Risky') : readings;
 
   return <>
-    <SectionHeading eyebrow="HISTORICAL ARCHIVE" title="Reading history" detail="Review valid, invalid, delayed and historical sensor measurements stored in MongoDB." action={<select className="compact-select" aria-label="History time range" value={period} onChange={e => setPeriod(e.target.value)}><option value="all">All available (latest 500)</option><option value="24h">Past 24 hours</option><option value="7d">Past 7 days</option></select>}/>
+    <div className="page-filter"><select className="compact-select" aria-label="History time range" value={period} onChange={e => setPeriod(e.target.value)}><option value="all">All available (latest 500)</option><option value="24h">Past 24 hours</option><option value="7d">Past 7 days</option></select></div>
     <div className="panel wide-chart">
       <div className="panel-header">
         <div>
@@ -440,7 +420,7 @@ function AlertsPage({ alerts }) {
   const list = type === 'all' ? alerts : alerts.filter(a => a.kind === type);
 
   return <>
-    <SectionHeading eyebrow="INCIDENT JOURNAL" title="Alerts & events" detail="Alerts are stored in MongoDB. Historical backfills do not trigger live notifications." action={<select className="compact-select" value={type} onChange={e => setType(e.target.value)} aria-label="Filter alert type"><option value="all">All alert types</option><option value="critical">Critical</option><option value="early_warning">Early warning</option><option value="sensor_fault">Sensor fault</option></select>}/>
+    <div className="page-filter"><select className="compact-select" value={type} onChange={e => setType(e.target.value)} aria-label="Filter alert type"><option value="all">All alert types</option><option value="critical">Critical</option><option value="early_warning">Early warning</option><option value="sensor_fault">Sensor fault</option></select></div>
     <div className="alert-summary">
       <div className="alert-summary-item"><span className="alert-icon-critical"><ShieldAlert size={20}/></span><div><strong>{alerts.filter(a => a.kind === 'critical').length}</strong><span>Critical Alerts</span></div></div>
       <div className="alert-summary-item"><span className="alert-icon-warning"><AlertTriangle size={20}/></span><div><strong>{alerts.filter(a => a.kind === 'early_warning').length}</strong><span>Early Warnings</span></div></div>
@@ -472,7 +452,6 @@ function DetectionPage({ summary, credentials }) {
   }
 
   return <>
-    <SectionHeading eyebrow="STAGE 3-4 ANOMALY ENGINE" title="Detection" detail="Real-time XGBoost anomaly classification, persistence monitoring, and confirmation protocol."/>
     
     <div className="detection-grid">
       <div className="panel">
@@ -572,7 +551,6 @@ function ValveControlPage({ summary, credentials }) {
   }
 
   return <>
-    <SectionHeading eyebrow="STAGE 5 ISOLATION" title="Valve Control" detail="Virtual fail-closed solenoid state, independent simulated feedback, and administrator controls."/>
     
     <div className="detection-grid">
       <div className="panel">
@@ -654,7 +632,6 @@ function ValveControlPage({ summary, credentials }) {
 function SettingsPage({ params, credentials }) {
   const r = params?.rule_rating;
   return <>
-    <SectionHeading eyebrow="CONFIGURATION & POLICIES" title="Reference parameters" detail="Provisional threshold register, device parameters, and active user session privileges."/>
     
     <div className="panel parameter-head">
       <div>
@@ -830,7 +807,7 @@ export default function App() {
   }, [credentials, deviceId, period, tick, refresh]);
 
   const selectedDevice = summary?.selected_device_id || deviceId;
-  const setView = view => { setPage(view); setMenuOpen(false); };
+  const setView = view => { setPage(view); setMenuOpen(false); window.scrollTo(0, 0); };
 
   if (!credentials) return <Connect onConnect={connect} busy={loginBusy} error={loginError}/>;
 
@@ -844,12 +821,13 @@ export default function App() {
         <button className="mobile-close icon-button" onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={18}/></button>
       </div>
 
-      <div className="nav-label">MAIN NAVIGATION</div>
+
       <nav aria-label="Primary navigation">
         {SIDEBAR.map(({ id, name, icon: Icon }) => (
           <button
             key={id}
             className={`nav-item ${page === id ? 'active' : ''}`}
+            aria-current={page === id ? 'page' : undefined}
             onClick={() => setView(id)}
           >
             <Icon size={17}/>
@@ -861,7 +839,7 @@ export default function App() {
 
       <div className="sidebar-divider"/>
 
-      <div className="nav-label">3D HARDWARE LAB</div>
+
       <a
         href={LAB_URL}
         target="_blank"
@@ -873,23 +851,11 @@ export default function App() {
           <div><Activity size={15}/> <span>AquaSentra 3D Lab</span></div>
           <ExternalLink size={13}/>
         </div>
-        <div className="lab-link-desc">Open separate 3D device explorer, IoT operation simulation, and component library.</div>
+        <div className="lab-link-desc">Explore the hardware and simulation.</div>
       </a>
 
       <div className="sidebar-spacer"/>
 
-      <div className="sidebar-device">
-        <div className="sidebar-device-label"><Radio size={13}/> CONNECTED SENSOR</div>
-        <strong>{selectedDevice || 'No device'}</strong>
-        <span className={`sidebar-status ${summary?.device_status || 'never_seen'}`}>
-          <span/> {summary?.device_status === 'online' ? 'Online · Active' : 'Offline · No contact'}
-        </span>
-      </div>
-
-      <div className="sidebar-footer">
-        <div className="stage-tag">AQUASENTRA STAGES 1–7</div>
-        <div>Research prototype · Not a drinking water certified device</div>
-      </div>
     </aside>
 
     <div className="app-main">
@@ -909,9 +875,9 @@ export default function App() {
           <button className="icon-button refresh-button" title="Refresh" aria-label="Refresh" onClick={() => { setLoading(true); setTick(v => v + 1); }}>
             <RefreshCcw size={16} className={loading ? 'spin' : ''}/>
           </button>
-          <button className="signout-button" onClick={logout}>
+          <button className="signout-button" aria-label="Sign out" onClick={logout}>
             <LogOut size={15}/>
-            <span>Disconnect</span>
+            <span>Sign out</span>
           </button>
         </div>
       </header>
@@ -919,13 +885,12 @@ export default function App() {
       <main className="page-content">
         <div className="page-intro">
           <div className="intro-left">
-            <div className="eyebrow">AQUASENTRA SYSTEM</div>
-            <h1>{page === 'overview' ? 'Household Water Overview' : SIDEBAR.find(s => s.id === page)?.name}</h1>
-            <p>{page === 'overview' ? 'Real-time telemetry and provisional water quality assessment.' : page === 'history' ? 'Time-series archive and historical record inspection.' : page === 'alerts' ? 'Study-defined reference crossing alarms and sensor fault notices.' : page === 'detection' ? 'XGBoost supervised anomaly inference and repeat confirmation.' : page === 'valve' ? 'Virtual fail-closed valve state and authorized administration.' : 'Study reference parameters and system configurations.'}</p>
+            <h1>{page === 'overview' ? 'Water quality overview' : page === 'settings' ? 'Reference parameters' : SIDEBAR.find(s => s.id === page)?.name}</h1>
+            <p>{page === 'overview' ? 'Latest readings and alerts for the selected device.' : page === 'history' ? 'Review past measurements and filter flagged readings.' : page === 'alerts' ? 'Review threshold warnings and sensor faults.' : page === 'detection' ? 'See which readings the model flagged and whether a repeat reading confirmed them.' : page === 'valve' ? 'Compare the valve command with simulated position feedback.' : 'View the study thresholds and sampling settings.'}</p>
           </div>
           <div className="intro-right">
             <div className="refresh-state">
-              <span className="live-orb"/> {fetchError ? 'Sync issue' : 'Monitoring'}
+              <span className={`live-orb ${fetchError || !online ? 'interrupted' : ''}`}/> {fetchError || !online ? 'Updates paused' : 'Monitoring'}
               <span className="refresh-time">· Updated {lastRefresh ? timeOnly(lastRefresh) : '—'}</span>
             </div>
           </div>
