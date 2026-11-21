@@ -1,9 +1,50 @@
-param(
+﻿param(
   [string]$MongoUri='mongodb://127.0.0.1:27017/aquasentra_stage7_demo',
-  [ValidateSet('all','frontend','device-lab','backend')][string]$App='all'
+  [ValidateSet('all','frontend','device-lab','backend')][string]$App='all',
+  [switch]$Stop
 )
 $ErrorActionPreference='Stop'
 Set-Location $PSScriptRoot
+
+$targetPorts = @(8001, 8444, 4173, 4174)
+
+function Stop-ExistingDemoServices {
+  Write-Host "Checking for existing AquaSentra demo processes..." -ForegroundColor Gray
+  if (Test-Path 'logs/demo-processes.json') {
+    try {
+      $savedPids = Get-Content 'logs/demo-processes.json' | ConvertFrom-Json
+      foreach ($pidToKill in $savedPids) {
+        if ($pidToKill -and (Get-Process -Id $pidToKill -ErrorAction SilentlyContinue)) {
+          Write-Host "  Stopping previous demo process (PID $pidToKill)..." -ForegroundColor Yellow
+          Stop-Process -Id $pidToKill -Force -ErrorAction SilentlyContinue
+        }
+      }
+    } catch {}
+  }
+  
+  foreach ($port in $targetPorts) {
+    try {
+      $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
+      foreach ($conn in $connections) {
+        if ($conn.OwningProcess -and $conn.OwningProcess -gt 0) {
+          $p = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue
+          if ($p -and $p.ProcessName -match 'node|python') {
+            Write-Host "  Freeing port $port from $($p.ProcessName) (PID $($p.Id))..." -ForegroundColor Yellow
+            Stop-Process -Id $conn.OwningProcess -Force -ErrorAction SilentlyContinue
+          }
+        }
+      }
+    } catch {}
+  }
+  Start-Sleep -Milliseconds 600
+}
+
+if ($Stop) {
+  Stop-ExistingDemoServices
+  Write-Host "All AquaSentra demo services have been stopped." -ForegroundColor Green
+  return
+}
+
 $env:MONGODB_URI=$MongoUri
 $env:PORT='8444'
 $env:ML_URL='http://127.0.0.1:8001'
@@ -46,6 +87,13 @@ if($App -eq 'all' -or $App -eq 'device-lab'){
 
 if(!(Test-Path 'ml/artifacts/model.ubj')){& ./.venv/Scripts/python.exe ml/train.py;if($LASTEXITCODE){throw 'Model training failed'}}
 New-Item -ItemType Directory -Force -Path logs | Out-Null
+
+# Clean up any leftover processes from previous runs before starting fresh
+Stop-ExistingDemoServices
+
+# Clear old error logs
+Remove-Item -Path logs/*-error.log -Force -ErrorAction SilentlyContinue
+
 $processes=@()
 
 try{
@@ -66,6 +114,21 @@ try{
   }
 
   $processes.Id | ConvertTo-Json | Set-Content logs/demo-processes.json
+
+  # Give processes a moment to bind ports and verify startup health
+  Start-Sleep -Milliseconds 1500
+  foreach($proc in $processes){
+    if($proc.HasExited){
+      $errDetails = ""
+      Get-ChildItem -Path logs/*-error.log -ErrorAction SilentlyContinue | ForEach-Object {
+        $c = Get-Content $_.FullName -Raw -ErrorAction SilentlyContinue
+        if($c -and $c.Trim().Length -gt 0) {
+          $errDetails += "`n--- $($_.Name) ---`n" + $c.Trim()
+        }
+      }
+      throw "Demo service exited unexpectedly (PID $($proc.Id)).$errDetails"
+    }
+  }
 
   Write-Host '========================================================================' -ForegroundColor Cyan
   Write-Host '  AquaSentra Stages 1–7 System Running' -ForegroundColor Green
@@ -95,7 +158,10 @@ try{
 }finally{
   foreach($proc in $processes){
     if(!$proc.HasExited){
-      Stop-Process -Id $proc.Id -ErrorAction SilentlyContinue
+      Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
     }
+  }
+  if (Test-Path 'logs/demo-processes.json') {
+    Remove-Item 'logs/demo-processes.json' -Force -ErrorAction SilentlyContinue
   }
 }
