@@ -25,37 +25,24 @@ function check(name, ok) {
 
 try {
   // ==========================================
-  // Part 1: Main AquaSentra Web Application
+  // Part 1: Main AquaSentra Web Application (Viewer Role)
   // ==========================================
-  console.log('\n--- TESTING MAIN AQUASENTRA WEB DASHBOARD (Port 4173) ---');
+  console.log('\n--- TESTING MAIN AQUASENTRA WEB DASHBOARD: VIEWER ROLE (Port 4173) ---');
   await page.goto('http://127.0.0.1:4173');
   await page.getByLabel('User ID').fill(env.BOOTSTRAP_VIEWER_ID);
   await page.getByLabel('Access token').fill(env.BOOTSTRAP_VIEWER_TOKEN);
   await page.getByRole('button', { name: 'Connect to dashboard' }).click();
 
-  // Overview Page & Integrated Section
-  await page.getByText('Detection details and simulation controls', { exact: true }).click();
-  await page.getByRole('heading', { name: 'Detection & virtual isolation' }).waitFor();
-  check('Login and integrated detection panel', true);
+  // Overview Page for Viewer: Household water assessment & metrics
+  await page.getByText('Latest water assessment').waitFor();
+  check('Login and household overview panel', true);
   check('No obsolete pending-stage labels', !/Stage 3.*pending|Disabled.*Stage 5/.test(await page.locator('body').innerText()));
+  check('Viewer role badge rendered in header', await page.locator('.role-badge.viewer').isVisible());
 
-  // AI Explanations
-  await page.getByRole('button', { name: 'Explain current state' }).click();
-  await page.getByText('Mock explanation (template, not an LLM):', { exact: false }).waitFor();
-  check('Mock explanation visible', true);
-
-  await page.getByRole('button', { name: 'Demonstrate AI fallback' }).click();
-  await page.getByText('Explanation service unavailable.', { exact: false }).waitFor();
-  check('AI fallback visible', true);
-
-  // Administrator Controls (Blocked for viewer)
-  await page.getByText('Administrator simulation controls', { exact: true }).click();
-  await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name: 'Restore virtual supply' }).click();
-  await page.getByText('forbidden', { exact: true }).waitFor();
-  check('Viewer blocked from control in browser', true);
-
-  await page.screenshot({ path: '../docs/dashboard-desktop.png', fullPage: true });
+  // Administrative controls must NOT be displayed for viewer
+  const adminControlsOnOverview = await page.getByText('Administrator detection details and simulation controls').isVisible();
+  check('Administrator simulation section hidden on viewer overview', !adminControlsOnOverview);
+  check('Restore virtual supply button hidden for viewer on overview', !await page.getByRole('button', { name: 'Restore virtual supply' }).isVisible());
 
   // Verification: Embedded 3D Explorer removed from main navigation
   const navText = await page.locator('nav').innerText();
@@ -73,20 +60,54 @@ try {
   await page.getByRole('button', { name: 'Alerts & events', exact: true }).click();
   check('Alerts page renders summary counters', await page.locator('.alert-summary').isVisible());
 
-  // Page 4: Detection
+  // Page 4: Detection & AI Explanations
   await page.getByRole('button', { name: 'Detection', exact: true }).click();
   check('Detection page renders XGBoost inference info', await page.getByText('XGBoost Machine Learning Model').isVisible());
 
-  // Page 5: Valve Control
-  await page.getByRole('button', { name: 'Valve Control', exact: true }).click();
-  check('Valve Control page renders virtual valve state', await page.getByText('Virtual Valve State').isVisible());
+  await page.getByRole('button', { name: 'Explain current state' }).click();
+  await page.getByText('Mock explanation (template, not an LLM):', { exact: false }).waitFor();
+  check('Mock explanation visible', true);
+
+  await page.getByRole('button', { name: 'Demonstrate AI fallback' }).click();
+  await page.getByText('Explanation service unavailable.', { exact: false }).waitFor();
+  check('AI fallback visible', true);
+
+  // Page 5: Valve & Supply (Viewer)
+  await page.getByRole('button', { name: /Valve/, exact: true }).click();
+  check('Valve page renders virtual valve state', await page.getByText('Virtual Valve State').isVisible());
+  check('Household water supply status panel rendered for viewer', await page.getByText('Household Water Supply Status').isVisible());
+  check('Administrative controls absent from viewer valve page', !await page.getByRole('button', { name: 'Restore virtual supply' }).isVisible());
 
   // Page 6: Parameters
   await page.getByRole('button', { name: 'Parameters', exact: true }).click();
-  check('Provisional parameter register renders', await page.getByText('Reference parameters', { exact: true }).isVisible());
+  check('Provisional parameter register renders', await page.getByText('Reference ranges & configuration', { exact: true }).isVisible());
+  check('Viewer sees Read-only access permissions', await page.getByText('Viewer (Household read-only monitoring)').isVisible());
 
-  // Return to Overview
-  await page.getByRole('button', { name: 'Overview', exact: true }).click();
+  await page.screenshot({ path: '../docs/dashboard-desktop.png', fullPage: true });
+
+  // ==========================================
+  // Part 1B: Administrator Verification
+  // ==========================================
+  console.log('\n--- TESTING MAIN AQUASENTRA WEB DASHBOARD: ADMIN ROLE ---');
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByLabel('User ID').fill(env.BOOTSTRAP_ADMIN_ID);
+  await page.getByLabel('Access token').fill(env.BOOTSTRAP_ADMIN_TOKEN);
+  await page.getByRole('button', { name: 'Connect to dashboard' }).click();
+
+  await page.locator('.role-badge.admin').waitFor();
+  check('Admin role badge rendered in header', true);
+  check('Admin sees advanced simulation controls drawer', await page.getByText('Administrator detection details and simulation controls').isVisible());
+
+  await page.getByRole('button', { name: 'Valve Control', exact: true }).click();
+  check('Admin sees Administrator Simulation Controls panel', await page.getByText('Administrator Simulation Controls').isVisible());
+  check('Restore virtual supply button visible for admin', await page.getByRole('button', { name: 'Restore virtual supply' }).isVisible());
+
+  // Re-login as viewer for mobile viewport and reload test
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await page.getByLabel('User ID').fill(env.BOOTSTRAP_VIEWER_ID);
+  await page.getByLabel('Access token').fill(env.BOOTSTRAP_VIEWER_TOKEN);
+  await page.getByRole('button', { name: 'Connect to dashboard' }).click();
+  await page.locator('.role-badge.viewer').waitFor();
 
   // Mobile layout responsiveness test
   await page.setViewportSize({ width: 390, height: 844 });

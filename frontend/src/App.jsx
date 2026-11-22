@@ -21,12 +21,12 @@ const FIELDS = [
   { key: 'temperature_c', title: 'Temperature', unit: '°C', tint: 'amber', icon: Thermometer, decimals: 1 }
 ];
 
-const SIDEBAR = [
+const getSidebarItems = (isAdmin) => [
   { id: 'overview', name: 'Overview', icon: LayoutDashboard },
   { id: 'history', name: 'Reading history', icon: History },
   { id: 'alerts', name: 'Alerts & events', icon: Bell },
   { id: 'detection', name: 'Detection', icon: Activity },
-  { id: 'valve', name: 'Valve Control', icon: ZapOff },
+  { id: 'valve', name: isAdmin ? 'Valve Control' : 'Valve & Supply', icon: ZapOff },
   { id: 'settings', name: 'Parameters', icon: Settings2 }
 ];
 
@@ -138,7 +138,7 @@ function SafetyBox({ small = false }) {
 /** Integrated component for Detection & Virtual Isolation simulation controls.
  * Preserves exact headings, buttons and checkboxes required by Stage 7 tests while styling cleanly.
  */
-function DetectionAndIsolationSection({ summary, credentials, standalone = false }) {
+function DetectionAndIsolationSection({ summary, credentials, isAdmin = false, standalone = false }) {
   const [message, setMessage] = useState('');
   const [text, setText] = useState('');
   const [events, setEvents] = useState([]);
@@ -210,17 +210,19 @@ function DetectionAndIsolationSection({ summary, credentials, standalone = false
       </div>
     </div>
 
-    <details>
-      <summary>Administrator simulation controls</summary>
-      <p style={{ fontSize: '12px', color: 'var(--text-light)', margin: '8px 0' }}>Viewer accounts are denied control by the server. Restoration requires fresh Normal rule and model results, resolved faults, and inspection acknowledgment.</p>
-      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', margin: '10px 0', cursor: 'pointer' }}>
-        <input type="checkbox" checked={inspected} onChange={e => setInspected(e.target.checked)}/> I have inspected the simulated scenario and authorize virtual restoration.
-      </label>
-      <div className="simulation-actions">
-        <button className="primary" disabled={busy || !inspected} onClick={() => action('control/restore', { inspected })}>Restore virtual supply</button>
-        {['none', 'no_ack', 'stuck', 'no_feedback', 'power_loss'].map(mode => <button key={mode} disabled={busy} onClick={() => action('control/fault', { mode })}>{mode === 'none' ? 'Clear fault injection' : `Simulate ${mode.replaceAll('_', ' ')}`}</button>)}
-      </div>
-    </details>
+    {isAdmin && (
+      <details className="control-details">
+        <summary>Administrator simulation controls</summary>
+        <p style={{ fontSize: '12px', color: 'var(--text-light)', margin: '8px 0' }}>Restoration requires fresh Normal rule and model results, resolved faults, and inspection acknowledgment.</p>
+        <label>
+          <input type="checkbox" checked={inspected} onChange={e => setInspected(e.target.checked)}/> I have physically inspected the apparatus and authorize virtual supply restoration.
+        </label>
+        <div className="simulation-actions">
+          <button className="primary" disabled={busy || !inspected} onClick={() => action('control/restore', { inspected })}>Restore virtual supply</button>
+          {['none', 'no_ack', 'stuck', 'no_feedback', 'power_loss'].map(mode => <button key={mode} disabled={busy} onClick={() => action('control/fault', { mode })}>{mode === 'none' ? 'Clear fault injection' : `Simulate ${mode.replaceAll('_', ' ')}`}</button>)}
+        </div>
+      </details>
+    )}
 
     {message && <p role="status" style={{ fontSize: '12px', fontWeight: 600, color: 'var(--primary)' }}>{message}</p>}
 
@@ -251,7 +253,7 @@ function DetectionAndIsolationSection({ summary, credentials, standalone = false
 }
 
 /* Page 1: Overview */
-function OverviewPage({ summary, readings, alerts, params, selectedMetric, onMetric, setPage, credentials }) {
+function OverviewPage({ summary, readings, alerts, params, selectedMetric, onMetric, setPage, credentials, isAdmin }) {
   const selected = FIELDS.find(f => f.key === selectedMetric) || FIELDS[0];
   const latest = summary?.latest_live_valid_reading;
   const status = summary?.device_status || 'never_seen';
@@ -346,10 +348,12 @@ function OverviewPage({ summary, readings, alerts, params, selectedMetric, onMet
       </div>
     </div>
 
-    <details className="advanced-monitoring">
-      <summary>Detection details and simulation controls</summary>
-      <DetectionAndIsolationSection summary={summary} credentials={credentials}/>
-    </details>
+    {isAdmin && (
+      <details className="advanced-monitoring">
+        <summary>Administrator detection details and simulation controls</summary>
+        <DetectionAndIsolationSection summary={summary} credentials={credentials} isAdmin={isAdmin}/>
+      </details>
+    )}
   </>;
 }
 
@@ -388,77 +392,94 @@ function HistoryPage({ readings, params, selectedMetric, onMetric, period, setPe
         <table className="reading-table">
           <thead>
             <tr>
-              <th>Measured At</th>
+              <th>Timestamp</th>
               <th>pH</th>
               <th>Turbidity</th>
               <th>TDS</th>
               <th>Temp</th>
-              <th>Rule Rating</th>
-              <th>Record Status</th>
+              <th>Rating</th>
+              <th>Validity</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map(r => <tr key={r._id}>
-              <td className="mono-sm">{dt(r.measured_at)}</td>
-              <td>{num(r.payload?.pH, 2)}</td>
-              <td>{num(r.payload?.turbidity, 2)} <small>NTU</small></td>
-              <td>{num(r.payload?.TDS, 0)} <small>mg/L</small></td>
-              <td>{num(r.payload?.temperature_c, 1)} <small>°C</small></td>
-              <td>{r.validity?.is_valid ? <RatingPill rating={r.rule_rating}/> : <span style={{ color: 'var(--critical-text)' }}>Not rated</span>}</td>
-              <td><span className={`status-tag ${!r.validity?.is_valid ? 'bad' : r.is_delayed ? 'delayed' : 'good'}`}>{!r.validity?.is_valid ? `Invalid: ${(r.validity.codes || []).join(', ')}` : r.is_delayed ? 'Delayed' : 'Valid'}</span></td>
-            </tr>)}
+            {rows.slice(0, 50).map(r => (
+              <tr key={r._id || r.measured_at}>
+                <td className="mono-sm">{dt(r.measured_at)}</td>
+                <td>{num(r.payload?.pH, 2)}</td>
+                <td>{num(r.payload?.turbidity, 2)} NTU</td>
+                <td>{num(r.payload?.TDS, 0)} mg/L</td>
+                <td>{num(r.payload?.temperature_c, 1)} °C</td>
+                <td><RatingPill rating={r.rule_rating}/></td>
+                <td>
+                  <span className={`status-tag ${r.validity?.is_valid ? 'good' : 'bad'}`}>
+                    {r.validity?.is_valid ? 'Valid' : (r.validity?.errors?.[0] || 'Flagged')}
+                  </span>
+                  {r.is_delayed && <span className="status-tag delayed" style={{ marginLeft: 4 }}>delayed</span>}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
-      </div> : <Empty title="No matching records" message="Adjust filters or run simulator."/>}
+      </div> : <Empty icon={Database} title="No records found" message="No matching sensor readings exist for this filter."/>}
     </div>
   </>;
 }
 
-/* Page 3: Alerts */
+/* Page 3: Alerts and Events */
 function AlertsPage({ alerts }) {
   const [type, setType] = useState('all');
-  const list = type === 'all' ? alerts : alerts.filter(a => a.kind === type);
+  const filtered = type === 'all' ? alerts : alerts.filter(a => a.kind === type);
 
   return <>
     <div className="page-filter"><select className="compact-select" value={type} onChange={e => setType(e.target.value)} aria-label="Filter alert type"><option value="all">All alert types</option><option value="critical">Critical</option><option value="early_warning">Early warning</option><option value="sensor_fault">Sensor fault</option></select></div>
     <div className="alert-summary">
-      <div className="alert-summary-item"><span className="alert-icon-critical"><ShieldAlert size={20}/></span><div><strong>{alerts.filter(a => a.kind === 'critical').length}</strong><span>Critical Alerts</span></div></div>
+      <div className="alert-summary-item"><span className="alert-icon-critical"><ShieldAlert size={20}/></span><div><strong>{alerts.filter(a => a.kind === 'critical').length}</strong><span>Critical Events</span></div></div>
       <div className="alert-summary-item"><span className="alert-icon-warning"><AlertTriangle size={20}/></span><div><strong>{alerts.filter(a => a.kind === 'early_warning').length}</strong><span>Early Warnings</span></div></div>
       <div className="alert-summary-item"><span className="alert-icon-fault"><AlertCircle size={20}/></span><div><strong>{alerts.filter(a => a.kind === 'sensor_fault').length}</strong><span>Sensor Faults</span></div></div>
     </div>
-    <div className="panel"><EventsList alerts={list} limit={500}/></div>
-    <div className="info-banner"><CircleHelp size={16}/> Alerts record study-defined condition crossings. They do not initiate automated valve isolation without independent confirmation and persistence.</div>
+
+    <div className="panel">
+      <div className="panel-header">
+        <div>
+          <h3>All Alert Events</h3>
+          <p>Historical audit trail of all triggered conditions</p>
+        </div>
+        <Bell size={18} className="header-icon"/>
+      </div>
+      <EventsList alerts={filtered} limit={50}/>
+    </div>
   </>;
 }
 
-/* Page 4: Detection */
+/* Page 4: Detection & Machine Learning */
 function DetectionPage({ summary, credentials }) {
-  const m = summary?.model;
   const s = summary?.control;
+  const m = summary?.model;
+  const device = summary?.selected_device_id;
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
 
   async function requestExplanation(provider) {
-    setBusy(true); setMessage('');
+    setBusy(true); setMessage(''); setText('');
     try {
-      const res = await apiPost('explanations', credentials, { device_id: summary?.selected_device_id, provider });
-      setText(res.text || 'No explanation returned.');
+      const res = await apiPost('explanations', credentials, { device_id: device, provider });
+      if (res.text) setText(res.text);
+      else setMessage('Explanation generated.');
     } catch (e) {
-      setMessage(e.message);
+      setMessage(e.message || 'Explanation failed.');
     } finally {
       setBusy(false);
     }
   }
 
   return <>
-    
     <div className="detection-grid">
       <div className="panel">
         <div className="panel-header">
           <div>
             <h3>XGBoost Machine Learning Model</h3>
-            <p>Supervised anomaly detector trained on synthetic water quality episodes</p>
+            <p>Supervised binary classifier for water anomaly detection</p>
           </div>
           <span className="card-title-badge"><Sparkles size={12}/> AI / ML</span>
         </div>
@@ -514,8 +535,8 @@ function DetectionPage({ summary, credentials }) {
   </>;
 }
 
-/* Page 5: Valve Control */
-function ValveControlPage({ summary, credentials }) {
+/* Page 5: Valve Control / Household Water Supply */
+function ValveControlPage({ summary, credentials, isAdmin = false }) {
   const v = summary?.valve;
   const s = summary?.control;
   const device = summary?.selected_device_id;
@@ -551,7 +572,6 @@ function ValveControlPage({ summary, credentials }) {
   }
 
   return <>
-    
     <div className="detection-grid">
       <div className="panel">
         <div className="panel-header">
@@ -571,29 +591,64 @@ function ValveControlPage({ summary, credentials }) {
         </div>
       </div>
 
-      <div className="panel">
-        <div className="panel-header">
-          <div>
-            <h3>Administrator Simulation Controls</h3>
-            <p>Authorized control commands (Requires research-admin)</p>
+      {isAdmin ? (
+        <div className="panel">
+          <div className="panel-header">
+            <div>
+              <h3>Administrator Simulation Controls</h3>
+              <p>Authorized control commands (Requires research-admin)</p>
+            </div>
+            <span className="card-title-badge"><Wrench size={12}/> Admin Only</span>
           </div>
-          <span className="card-title-badge"><Wrench size={12}/> Admin Only</span>
+          <p style={{ fontSize: '12px', color: 'var(--text-light)', margin: '0 0 10px' }}>
+            Supply restoration requires confirmed Normal telemetry, cleared faults, and physical inspection sign-off.
+          </p>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', margin: '12px 0', cursor: 'pointer' }}>
+            <input type="checkbox" checked={inspected} onChange={e => setInspected(e.target.checked)}/> I have inspected the simulated scenario and authorize virtual restoration.
+          </label>
+          <div className="simulation-actions">
+            <button className="primary" disabled={busy || !inspected} onClick={() => sendAction('control/restore', { inspected })}>Restore virtual supply</button>
+          </div>
+          <h4 style={{ margin: '14px 0 6px', fontSize: '13px' }}>Simulate Virtual Fault Injection</h4>
+          <div className="simulation-actions">
+            {['none', 'no_ack', 'stuck', 'no_feedback', 'power_loss'].map(mode => <button key={mode} disabled={busy} onClick={() => sendAction('control/fault', { mode })}>{mode === 'none' ? 'Clear fault' : `Simulate ${mode.replaceAll('_', ' ')}`}</button>)}
+          </div>
+          {message && <p role="status" style={{ fontSize: '12px', fontWeight: 600, color: message.includes('failed') || message.includes('forbidden') ? 'var(--critical-text)' : 'var(--primary)' }}>{message}</p>}
         </div>
-        <p style={{ fontSize: '12px', color: 'var(--text-light)', margin: '0 0 10px' }}>
-          Viewer roles will receive a 403 Forbidden response. Supply restoration requires confirmed Normal telemetry, cleared faults, and physical inspection sign-off.
-        </p>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', margin: '12px 0', cursor: 'pointer' }}>
-          <input type="checkbox" checked={inspected} onChange={e => setInspected(e.target.checked)}/> I have inspected the simulated scenario and authorize virtual restoration.
-        </label>
-        <div className="simulation-actions">
-          <button className="primary" disabled={busy || !inspected} onClick={() => sendAction('control/restore', { inspected })}>Restore virtual supply</button>
+      ) : (
+        <div className="panel">
+          <div className="panel-header">
+            <div>
+              <h3>Household Water Supply Status</h3>
+              <p>Automated virtual protection barrier</p>
+            </div>
+            <span className="card-title-badge"><ShieldCheck size={12}/> Safety Barrier</span>
+          </div>
+          {v?.supply_status === 'simulated_isolated' || v?.verified === 'closed' ? (
+            <div className="supply-status-banner isolated">
+              <ShieldAlert size={22}/>
+              <div>
+                <strong>Virtual Water Supply Isolated</strong>
+                <p>The safety valve barrier has closed because persistent water quality anomalies were detected. Water is shut off to protect household plumbing.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="supply-status-banner active">
+              <ShieldCheck size={22}/>
+              <div>
+                <strong>Water Supply Active & Protected</strong>
+                <p>All current water quality readings are within operational ranges. The virtual shutoff valve remains in normal open monitoring mode.</p>
+              </div>
+            </div>
+          )}
+          <div className="setting-row"><span>Valve Barrier Mode</span><strong>Normally Closed Solenoid (Virtual)</strong></div>
+          <div className="setting-row"><span>Closure Automation</span><strong>Triggered by persistent anomaly & confirmation</strong></div>
+          <div className="setting-row"><span>Manual Valve Control</span><strong style={{ color: 'var(--text-light)' }}>Administrator Access Required</strong></div>
+          <div className="status-note" style={{ marginTop: '16px' }}>
+            <CircleHelp size={16}/> <strong>Administrative Controls Restricted:</strong> Manual supply restoration, test actuation, and fault simulation are restricted to certified administrators (<code>research-admin</code>). Household viewers have real-time visibility into valve status and audit events.
+          </div>
         </div>
-        <h4 style={{ margin: '14px 0 6px', fontSize: '13px' }}>Simulate Virtual Fault Injection</h4>
-        <div className="simulation-actions">
-          {['none', 'no_ack', 'stuck', 'no_feedback', 'power_loss'].map(mode => <button key={mode} disabled={busy} onClick={() => sendAction('control/fault', { mode })}>{mode === 'none' ? 'Clear fault' : `Simulate ${mode.replaceAll('_', ' ')}`}</button>)}
-        </div>
-        {message && <p role="status" style={{ fontSize: '12px', fontWeight: 600, color: message.includes('failed') || message.includes('forbidden') ? 'var(--critical-text)' : 'var(--primary)' }}>{message}</p>}
-      </div>
+      )}
     </div>
 
     <div className="panel">
@@ -629,72 +684,94 @@ function ValveControlPage({ summary, credentials }) {
 }
 
 /* Page 6: Settings & Parameters */
-function SettingsPage({ params, credentials }) {
+function SettingsPage({ params, credentials, isAdmin = false }) {
   const r = params?.rule_rating;
   return <>
-    
     <div className="panel parameter-head">
       <div>
-        <div className="eyebrow" style={{ color: '#166534' }}>ACTIVE PARAMETER REGISTER</div>
-        <h3>{params?.parameter_set_version || 'Not loaded'}</h3>
-        <p>Provisional reference boundaries · adviser review pending · virtual simulation only</p>
+        <div className="eyebrow" style={{ color: '#166534' }}>ACTIVE PROVISIONAL PARAMETERS</div>
+        <h3>Reference ranges & configuration</h3>
+        <p>Provisional thresholds for water quality rule ratings and live evaluation</p>
       </div>
-      <span className="parameter-chip"><LockKeyhole size={14}/> Read-only config</span>
+      <div className="parameter-chip"><SlidersHorizontal size={14}/> Version {params?.parameter_set_version || '1.0'}</div>
     </div>
 
     <div className="parameter-grid">
       <div className="panel">
-        <h3>pH Reference Limits</h3>
-        <p>Measured in pH units. Normal is inclusive. Risky is outside Normal but within outer limits.</p>
-        <div className="setting-row"><span>Normal Range</span><strong>{r ? `${r.pH.normal_min} – ${r.pH.normal_max} pH` : '—'}</strong></div>
-        <div className="setting-row"><span>Risky Outer Bounds</span><strong>{r ? `${r.pH.risky_outer_min} – ${r.pH.risky_outer_max} pH` : '—'}</strong></div>
-        <div className="setting-row"><span>Critical Bound</span><strong>Beyond Risky limits</strong></div>
-      </div>
-
-      <div className="panel">
-        <h3>Turbidity Limits</h3>
-        <p>Measured in Nephelometric Turbidity Units (NTU). User-defined early warning categories.</p>
-        <div className="setting-row"><span>Normal Range</span><strong>≤ {r?.turbidity.normal_max ?? '—'} NTU</strong></div>
-        <div className="setting-row"><span>Risky Range</span><strong>≤ {r?.turbidity.risky_max ?? '—'} NTU (above Normal)</strong></div>
-        <div className="setting-row"><span>Critical Bound</span><strong>&gt; {r?.turbidity.risky_max ?? '—'} NTU</strong></div>
-      </div>
-
-      <div className="panel">
-        <h3>Total Dissolved Solids (TDS)</h3>
-        <p>Measured in mg/L (ppm). Illustrative study references.</p>
-        <div className="setting-row"><span>Normal Range</span><strong>≤ {r?.TDS.normal_max ?? '—'} mg/L</strong></div>
-        <div className="setting-row"><span>Risky Range</span><strong>≤ {r?.TDS.risky_max ?? '—'} mg/L (above Normal)</strong></div>
-        <div className="setting-row"><span>Critical Bound</span><strong>&gt; {r?.TDS.risky_max ?? '—'} mg/L</strong></div>
-      </div>
-
-      <div className="panel">
-        <h3>Operational Telemetry</h3>
-        <p>System operational references and communication timeouts.</p>
-        <div className="setting-row"><span>Operational Temperature</span><strong>{r ? `${r.temperature_operational_reference.min}–${r.temperature_operational_reference.max} °C` : '—'}</strong></div>
-        <div className="setting-row"><span>Offline Timeout</span><strong>{params?.dashboard_offline_after_seconds ?? '—'} seconds</strong></div>
-        <div className="setting-row"><span>Nominal Sampling Interval</span><strong>{params?.sampling_interval_seconds ?? '—'} seconds</strong></div>
-      </div>
-    </div>
-
-    <div className="panel">
-      <div className="panel-header">
-        <div>
-          <h3>User Session & Permissions</h3>
-          <p>Current authenticated account access level</p>
+        <div className="panel-header">
+          <div>
+            <h3>pH Reference Limits</h3>
+            <p>Glass probe with PH-4502C signal conditioning</p>
+          </div>
+          <FlaskConical size={18} className="header-icon"/>
         </div>
-        <LockKeyhole size={18} className="header-icon"/>
+        <div className="setting-row"><span>Normal Range (Inclusive)</span><strong>{r?.pH?.normal_min ?? 6.5} – {r?.pH?.normal_max ?? 8.5} pH</strong></div>
+        <div className="setting-row"><span>Risky Lower Band</span><strong>{r?.pH?.risky_min ?? 6.0} to &lt; {r?.pH?.normal_min ?? 6.5} pH</strong></div>
+        <div className="setting-row"><span>Risky Upper Band</span><strong>&gt; {r?.pH?.normal_max ?? 8.5} to {r?.pH?.risky_max ?? 9.0} pH</strong></div>
+        <div className="setting-row"><span>Critical Limits</span><strong>&lt; {r?.pH?.risky_min ?? 6.0} or &gt; {r?.pH?.risky_max ?? 9.0} pH</strong></div>
       </div>
-      <div className="setting-row"><span>User Account ID</span><strong>{credentials?.id || '—'}</strong></div>
-      <div className="setting-row"><span>Session Role</span><strong style={{ color: 'var(--primary)' }}>{credentials?.id?.includes('admin') ? 'Administrator (Full simulation control)' : 'Viewer (Read-only monitoring)'}</strong></div>
-      <div className="setting-row"><span>Credential Storage</span><strong>Tab memory only (No persistent browser storage)</strong></div>
-      <div className="setting-row"><span>Backend Node.js API</span><strong>https://127.0.0.1:8444/api/v1</strong></div>
+
+      <div className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Turbidity Reference Limits</h3>
+            <p>SEN0189 optical phototransistor sensor</p>
+          </div>
+          <Droplets size={18} className="header-icon"/>
+        </div>
+        <div className="setting-row"><span>Normal Upper Bound</span><strong>&le; {r?.turbidity?.normal_max ?? 5.0} NTU</strong></div>
+        <div className="setting-row"><span>Risky Range</span><strong>&gt; {r?.turbidity?.normal_max ?? 5.0} to &le; {r?.turbidity?.risky_max ?? 10.0} NTU</strong></div>
+        <div className="setting-row"><span>Critical Bound</span><strong>&gt; {r?.turbidity?.risky_max ?? 10.0} NTU</strong></div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Total Dissolved Solids (TDS)</h3>
+            <p>Titanium dual-pin electrode probe</p>
+          </div>
+          <Gauge size={18} className="header-icon"/>
+        </div>
+        <div className="setting-row"><span>Normal Upper Bound</span><strong>&le; {r?.TDS?.normal_max ?? 600} mg/L</strong></div>
+        <div className="setting-row"><span>Risky Range</span><strong>&gt; {r?.TDS?.normal_max ?? 600} to &le; {r?.TDS?.risky_max ?? 900} mg/L</strong></div>
+        <div className="setting-row"><span>Critical Bound</span><strong>&gt; {r?.TDS?.risky_max ?? 900} mg/L</strong></div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-header">
+          <div>
+            <h3>Operational Temperature Reference</h3>
+            <p>Waterproof DS18B20 digital thermal probe</p>
+          </div>
+          <Thermometer size={18} className="header-icon"/>
+        </div>
+        <div className="setting-row"><span>Operational Reference Range</span><strong>{r?.temperature_c?.operational_min ?? 0.0} – {r?.temperature_c?.operational_max ?? 45.0} °C</strong></div>
+        <div className="setting-row"><span>Rule Rating Influence</span><strong>None (Recorded for reference only)</strong></div>
+      </div>
+
+      <div className="panel" style={{ gridColumn: 'span 2' }}>
+        <div className="panel-header">
+          <div>
+            <h3>User Session & Permissions</h3>
+            <p>Authenticated account access level</p>
+          </div>
+          <LockKeyhole size={18} className="header-icon"/>
+        </div>
+        <div className="setting-row"><span>User Account ID</span><strong>{credentials?.id || '—'}</strong></div>
+        <div className="setting-row"><span>Session Role</span><strong style={{ color: isAdmin ? '#b45309' : 'var(--primary)' }}>{isAdmin ? 'Administrator (Full simulation control)' : 'Viewer (Household read-only monitoring)'}</strong></div>
+        <div className="setting-row"><span>Control Permissions</span><strong>{isAdmin ? 'Authorized for virtual valve restoration & fault injection' : 'Read-only access (Administrative actions restricted)'}</strong></div>
+        <div className="setting-row"><span>Credential Storage</span><strong>Tab memory only (No persistent browser storage)</strong></div>
+        <div className="setting-row"><span>Backend Node.js API</span><strong>https://127.0.0.1:8444/api/v1</strong></div>
+      </div>
     </div>
 
     <SafetyBox/>
-    <div className="info-banner">
-      <SlidersHorizontal size={18}/>
-      <span>To update provisional threshold bounds, modify <code>backend/config/parameters.json</code>, increment <code>parameter_set_version</code>, restart the Node.js server, and run backend tests. Existing rated records retain their historical version tag and are never silently reclassified.</span>
-    </div>
+    {isAdmin && (
+      <div className="info-banner">
+        <SlidersHorizontal size={18}/>
+        <span>To update provisional threshold bounds, modify <code>backend/config/parameters.json</code>, increment <code>parameter_set_version</code>, restart the Node.js server, and run backend tests. Existing rated records retain their historical version tag and are never silently reclassified.</span>
+      </div>
+    )}
   </>;
 }
 
@@ -716,6 +793,9 @@ export default function App() {
   const [lastRefresh, setLastRefresh] = useState(null);
   const [online, setOnline] = useState(navigator.onLine);
   const [tick, setTick] = useState(0);
+
+  const isAdmin = Boolean(credentials?.id?.toLowerCase().includes('admin'));
+  const sidebarItems = useMemo(() => getSidebarItems(isAdmin), [isAdmin]);
 
   useEffect(() => {
     const on = () => setOnline(true);
@@ -817,13 +897,12 @@ export default function App() {
     <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
       <div className="brand">
         <span className="brand-mark"><Droplets size={22}/></span>
-        <div className="brand-name">Aqua<span>Sentra</span><small>HOUSEHOLD MONITORING</small></div>
+        <div className="brand-name">Aqua<span>Sentra</span><small>{isAdmin ? 'SYSTEM ADMINISTRATION' : 'HOUSEHOLD MONITORING'}</small></div>
         <button className="mobile-close icon-button" onClick={() => setMenuOpen(false)} aria-label="Close menu"><X size={18}/></button>
       </div>
 
-
       <nav aria-label="Primary navigation">
-        {SIDEBAR.map(({ id, name, icon: Icon }) => (
+        {sidebarItems.map(({ id, name, icon: Icon }) => (
           <button
             key={id}
             className={`nav-item ${page === id ? 'active' : ''}`}
@@ -838,7 +917,6 @@ export default function App() {
       </nav>
 
       <div className="sidebar-divider"/>
-
 
       <a
         href={LAB_URL}
@@ -855,14 +933,13 @@ export default function App() {
       </a>
 
       <div className="sidebar-spacer"/>
-
     </aside>
 
     <div className="app-main">
       <header className="topbar">
         <div className="top-left">
           <button className="menu-button icon-button" onClick={() => setMenuOpen(true)} aria-label="Open menu"><Menu size={18}/></button>
-          <div className="breadcrumb">AquaSentra <span>/</span> <strong>{SIDEBAR.find(s => s.id === page)?.name}</strong></div>
+          <div className="breadcrumb">AquaSentra <span>/</span> <strong>{sidebarItems.find(s => s.id === page)?.name}</strong></div>
         </div>
         <div className="top-right">
           <div className="header-device">
@@ -872,6 +949,9 @@ export default function App() {
             </select>
             <ChevronDown size={13}/>
           </div>
+          <span className={`role-badge ${isAdmin ? 'admin' : 'viewer'}`}>
+            {isAdmin ? <><Wrench size={12}/> Admin</> : 'Viewer'}
+          </span>
           <button className="icon-button refresh-button" title="Refresh" aria-label="Refresh" onClick={() => { setLoading(true); setTick(v => v + 1); }}>
             <RefreshCcw size={16} className={loading ? 'spin' : ''}/>
           </button>
@@ -885,8 +965,8 @@ export default function App() {
       <main className="page-content">
         <div className="page-intro">
           <div className="intro-left">
-            <h1>{page === 'overview' ? 'Water quality overview' : page === 'settings' ? 'Reference parameters' : SIDEBAR.find(s => s.id === page)?.name}</h1>
-            <p>{page === 'overview' ? 'Latest readings and alerts for the selected device.' : page === 'history' ? 'Review past measurements and filter flagged readings.' : page === 'alerts' ? 'Review threshold warnings and sensor faults.' : page === 'detection' ? 'See which readings the model flagged and whether a repeat reading confirmed them.' : page === 'valve' ? 'Compare the valve command with simulated position feedback.' : 'View the study thresholds and sampling settings.'}</p>
+            <h1>{page === 'overview' ? 'Water quality overview' : page === 'settings' ? 'Reference parameters' : sidebarItems.find(s => s.id === page)?.name}</h1>
+            <p>{page === 'overview' ? 'Latest readings and alerts for the selected device.' : page === 'history' ? 'Review past measurements and filter flagged readings.' : page === 'alerts' ? 'Review threshold warnings and sensor faults.' : page === 'detection' ? 'See which readings the model flagged and whether a repeat reading confirmed them.' : page === 'valve' ? (isAdmin ? 'Compare the valve command with simulated position feedback.' : 'Current status of the household water isolation valve.') : 'View the study thresholds and sampling settings.'}</p>
           </div>
           <div className="intro-right">
             <div className="refresh-state">
@@ -898,12 +978,12 @@ export default function App() {
 
         {(!online || fetchError) && <div className="error-banner"><WifiOff size={16}/>{!online ? 'Browser offline. Cached telemetry may be stale.' : fetchError}</div>}
 
-        {page === 'overview' && <OverviewPage summary={summary} readings={readings} alerts={alerts} params={params} selectedMetric={selectedMetric} onMetric={setSelectedMetric} setPage={setView} credentials={credentials}/>}
+        {page === 'overview' && <OverviewPage summary={summary} readings={readings} alerts={alerts} params={params} selectedMetric={selectedMetric} onMetric={setSelectedMetric} setPage={setView} credentials={credentials} isAdmin={isAdmin}/>}
         {page === 'history' && <HistoryPage readings={readings} params={params} selectedMetric={selectedMetric} onMetric={setSelectedMetric} period={period} setPeriod={setPeriod}/>}
         {page === 'alerts' && <AlertsPage alerts={alerts}/>}
         {page === 'detection' && <DetectionPage summary={summary} credentials={credentials}/>}
-        {page === 'valve' && <ValveControlPage summary={summary} credentials={credentials}/>}
-        {page === 'settings' && <SettingsPage params={params} credentials={credentials}/>}
+        {page === 'valve' && <ValveControlPage summary={summary} credentials={credentials} isAdmin={isAdmin}/>}
+        {page === 'settings' && <SettingsPage params={params} credentials={credentials} isAdmin={isAdmin}/>}
 
         <footer className="app-footer">
           <span>© 2026 AquaSentra · Stages 1–7 Research Prototype</span>
